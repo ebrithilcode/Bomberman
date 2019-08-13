@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-    mainClassName = "client.Client"
+    mainClassName = "com.ebrithilcode.bomberman.client.ClientKt"
 }
 
 dependencies {
