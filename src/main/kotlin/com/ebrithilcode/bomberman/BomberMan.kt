@@ -7,9 +7,10 @@ fun main() {
 
 }
 
-class BomberMan(port : Int) : PApplet(){
+class BomberMan(port : Int) : PApplet() {
     private val server = Server(port)
     private val playerList = mutableListOf<Player>()
+    private val grid = Grid(10, 10, 30.0)
 
     override fun settings() {
         size(300,300)
@@ -17,7 +18,7 @@ class BomberMan(port : Int) : PApplet(){
 
     override fun setup() {
         server.acceptClients(1) { theSocket ->
-            Player(theSocket).let {
+            Player(theSocket, grid).let {
                 playerList.add(it)
             }
         }
@@ -33,7 +34,10 @@ class BomberMan(port : Int) : PApplet(){
         textAlign(CENTER, CENTER)
         text("Waiting for ${server.scheduledClients} clients", width/2f, height/2f)
         text("Job done? ${server.clientJob.isCompleted}", width/2f, height/2f+40)
-        for (player in playerList) player.update()
+        for (player in playerList) {
+            player.character.show(this)
+            player.update()
+        }
     }
 
 }

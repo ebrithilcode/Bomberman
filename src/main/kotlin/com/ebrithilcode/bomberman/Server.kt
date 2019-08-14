@@ -3,13 +3,10 @@ package com.ebrithilcode.bomberman
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.io.StringReader
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
 import javax.json.Json
-import javax.json.JsonObject
-import javax.json.JsonObjectBuilder
 
 
 class Server(port:Int) {

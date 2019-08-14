@@ -48,7 +48,7 @@ class Client(val serverIP : String, val serverPort : Int) : PApplet() {
      * A JSONReader that will be connected to the sockets input stream on socket initialization. Used to
      * receive information about the servers encoded key configuration.
      */
-    private val jsonReader : () ->JsonReader = {
+    private val jsonReader : ()->JsonReader = {
         Json.createReader(socket.getInputStream())
     }
 

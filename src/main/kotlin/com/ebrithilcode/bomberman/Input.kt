@@ -73,12 +73,30 @@ class Input(val inputStream : InputStream) {
         onKey(key, true, callback)
     }
 
+    /** Repeatedly calls onKeyStroke with each key and each callback
+     *
+     */
+    fun onKeyStroke(keys : List<String>, callbacks : List<()->Unit>) {
+        for (ind in keys.indices) {
+            onKeyStroke(keys[ind], callbacks[ind])
+        }
+    }
+
     /** Add a callback to be called when [key] is released
      * @param key The key to listen for with its server side name
      * @param callback The callback to be executed when the event happens
      */
     fun onKeyRelease(key : String, callback: () -> Unit) {
         onKey(key, false, callback)
+    }
+
+    /** Repeatedly calls onKeyRelease with each key and each callback
+     *
+     */
+    fun onKeyRelease(keys : List<String>, callbacks : List<()->Unit>) {
+        for (ind in keys.indices) {
+            onKeyRelease(keys[ind], callbacks[ind])
+        }
     }
 
     /**
