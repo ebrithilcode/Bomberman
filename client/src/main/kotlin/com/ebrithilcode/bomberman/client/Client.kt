@@ -3,15 +3,12 @@ package com.ebrithilcode.bomberman.client
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import processing.core.PApplet
-import processing.data.JSONObject
-import java.lang.Exception
 import java.net.DatagramSocket
 import java.net.InetSocketAddress
 import java.net.Socket
 import javax.json.Json
 import javax.json.JsonObject
 import javax.json.JsonReader
-import kotlin.system.measureTimeMillis
 
 fun main() {
     println("Client starting up")
