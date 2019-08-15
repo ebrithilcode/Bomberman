@@ -1,5 +1,7 @@
 package com.ebrithilcode.bomberman
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.InputStream
 import javax.json.Json
 import javax.json.JsonObject
@@ -22,10 +24,17 @@ class Input(val inputStream : InputStream) {
                 keys.add("a", "left")
                 keys.add("d", "right")
                 keys.add("s", "down")
+                keys.add(" ","action")
                 val keyCodes = Json.createObjectBuilder()
                 builder.add("keys", keys)
                 builder.add("keyCodes", keyCodes)
                 builder.build()
+        }
+    }
+
+    init {
+        GlobalScope.launch {
+            while (true) manageInput()
         }
     }
 
@@ -44,6 +53,7 @@ class Input(val inputStream : InputStream) {
 
     private fun keyStroke(name : String) {
         val subList = subscriber["${name}Pressed"]
+        println("Subs: ${subList?.size}")
         if (subList!=null) {
             for (sub in subList) sub()
         }

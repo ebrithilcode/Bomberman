@@ -1,35 +1,38 @@
 package com.ebrithilcode.bomberman
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import processing.core.PVector
-import java.io.InputStream
 import java.net.Socket
 
 class Player(socket : Socket, grid : Grid){
+
+
+
     val id = socket.remoteSocketAddress
-    val input = Input(socket.getInputStream())
-    val character : Entity = Entity(grid)
-    val directions = arrayOf(PVector(1f,0f), PVector(0f,1f), PVector(-1f,0f), PVector(0f, -1f))
+    private val input = Input(socket.getInputStream())
+    val character : Pawn = Pawn(grid)
+
 
     init {
         val names = listOf("right", "down", "left", "up")
-        val actions = List<()->Unit>(4) {
+        val directions = arrayOf(PVector(1f,0f), PVector(0f,1f), PVector(-1f,0f), PVector(0f, -1f))
+        val actions = List(4) {
             {
+                println("Action called: $it")
                 character.direction = directions[it]
+                character.speed = character.maxSpeed
             }
         }
         val releaseActions = List(4) {
             {
-                if (character.direction.equals(directions[it])) character.direction = PVector(0f,0f)
+                if (character.direction == directions[it]) character.speed = 0f
             }
         }
         input.onKeyStroke(names, actions)
         input.onKeyRelease(names, releaseActions)
+        input.onKeyStroke("action", character::onAction)
     }
 
-    fun update() {
 
-    }
+
 
 }
