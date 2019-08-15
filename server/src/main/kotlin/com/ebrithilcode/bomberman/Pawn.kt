@@ -18,6 +18,7 @@ class Pawn(grid : Grid) : Entity(grid) {
             println("Adding a bomb")
             val bomb = Bomb(grid, 3000, this)
             bomb.position = roundPosition()
+            grid.getField(bomb.position).entitiesOnField.add(bomb)
             grid.entityList.add(bomb)
         }
     }
