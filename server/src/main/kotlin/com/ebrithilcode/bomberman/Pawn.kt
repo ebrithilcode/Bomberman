@@ -5,7 +5,7 @@ class Pawn(grid : Grid) : Entity(grid) {
     val bombList = mutableListOf<Bomb>()
     val allowedBombCount = 5
     val explosionRange = 1
-    val maxSpeed = 0.04f
+    val maxSpeed = 0.2f
     val knockingBombs = false
 
 

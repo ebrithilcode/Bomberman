@@ -57,6 +57,7 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid) {
             if (rays[index]==0) rays[index] = placer.explosionRange
         }
         isDead = true
+        grid.getField(roundPosition()).entitiesOnField.remove(this)
         return rays
     }
 
