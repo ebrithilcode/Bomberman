@@ -43,20 +43,24 @@ open class Entity(val grid : Grid) {
      * Moves this entity if the move is not rejected by [Field.isMoveRejected] and manages changing of fields doing so
      */
     private fun move() {
-        if (speed > 0 && !grid.isMoveRejected(this)) {
-            val currentField = roundPosition()
-            position.add(PVector.mult(direction, speed))
+        if (speed>0) {
+            if (!grid.isMoveRejected(this)) {
+                val currentField = roundPosition()
+                position.add(PVector.mult(direction, speed))
 
-            if (direction.x==0f) position.x = position.x.roundToInt().toFloat()
-            if (direction.y==0f) position.y = position.y.roundToInt().toFloat()
+                if (direction.x == 0f) position.x = position.x.roundToInt().toFloat()
+                if (direction.y == 0f) position.y = position.y.roundToInt().toFloat()
 
-            val newField = roundPosition()
-            if (newField != currentField) {
-                grid.fields[currentField.x.toInt()][currentField.y.toInt()].entitiesOnField.remove(this)
-                grid.fields[newField.x.toInt()][newField.y.toInt()].entitiesOnField.add(this)
+                val newField = roundPosition()
+                if (newField != currentField) {
+                    grid.fields[currentField.x.toInt()][currentField.y.toInt()].entitiesOnField.remove(this)
+                    grid.fields[newField.x.toInt()][newField.y.toInt()].entitiesOnField.add(this)
 
+                }
+                println("Moving with $speed in $direction")
+            } else {
+                position = roundPosition()
             }
-            println("Moving with $speed in $direction")
         }
 
     }

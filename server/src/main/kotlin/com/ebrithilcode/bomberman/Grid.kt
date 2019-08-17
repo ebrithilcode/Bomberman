@@ -89,6 +89,7 @@ class Grid(val width : Int, val height : Int, val gridSize : Double) {
                 applet.fill(colors[fields[x][y].byteState.toInt()])
                 applet.stroke(0)
                 val position = PVector((x*gridSize).toFloat(), (y*gridSize).toFloat())
+                if (fields[x][y].entitiesOnField.size>0) applet.fill(255f,0f,255f)
                 applet.rect(position.x, position.y, gridSize.toFloat(), gridSize.toFloat())
             }
         }

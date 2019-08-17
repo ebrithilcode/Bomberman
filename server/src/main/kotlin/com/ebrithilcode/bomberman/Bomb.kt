@@ -27,6 +27,8 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid) {
     }
 
     private fun explode() : IntArray {
+        //For the field the bomb is lying on, we just have to check for entities
+        for (onField in grid.getField(roundPosition()).entitiesOnField) onField.slayThatBitch()
         //rays are storing how long the bomb could explode in each direction from east on clockwise
         val rays = IntArray(4)
         for ((index, dir) in defaultDirections.withIndex()) {
@@ -55,6 +57,7 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid) {
             if (rays[index]==0) rays[index] = placer.explosionRange
         }
         isDead = true
+        grid.getField(roundPosition()).entitiesOnField.remove(this)
         return rays
     }
 
