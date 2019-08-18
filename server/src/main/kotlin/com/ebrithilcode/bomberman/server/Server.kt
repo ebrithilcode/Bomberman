@@ -6,7 +6,6 @@ import kotlinx.coroutines.launch
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
-import javax.json.Json
 
 
 class Server(port:Int) {
@@ -26,9 +25,6 @@ class Server(port:Int) {
                         scheduledClients.decrementAndGet()
                         onAccept(newClient)
                         clientList.add(newClient)
-                        newClient.getOutputStream().let {
-                            Json.createWriter(it).writeObject(Input.usedKeys)
-                        }
 
                     }
                 }

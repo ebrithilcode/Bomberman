@@ -4,6 +4,7 @@ import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PVector
 
+
 class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid) {
     val startTime = System.currentTimeMillis()
 

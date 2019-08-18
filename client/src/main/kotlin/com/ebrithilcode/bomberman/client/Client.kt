@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import processing.core.PApplet
 import processing.core.PConstants
+import java.awt.GridBagConstraints
 import java.net.DatagramSocket
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -24,7 +25,7 @@ class Client(val serverIP : String, val serverPort : Int) : PApplet() {
     private val currentPlayerActions: EnumSet<PlayerAction> = EnumSet.noneOf(PlayerAction::class.java)
 
     @Volatile
-    private var grid: ByteArray = ByteArray(0)
+    private lateinit var grid: Grid
     @Volatile
     private var idToEntityMap: MutableMap<Long, MockEntity> = HashMap()
     @Volatile
@@ -50,7 +51,7 @@ class Client(val serverIP : String, val serverPort : Int) : PApplet() {
     }
 
     fun handleMessage(msg: RenderMessage) {
-        this.grid = msg.grid
+        this.grid = Grid.fromData(msg.grid)
         idToEntityMap = msg.entities.asSequence() //entities need to be recreated every time since data can change
                 .associateByTo(HashMap(), { it.id }, { MockEntity(it) })
         idToAnimationMap = msg.animations.asSequence() //animations can and should be reused

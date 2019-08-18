@@ -16,7 +16,7 @@ class GridBuilder(width:Int, height:Int) : PApplet() {
 
     var selectedField : TextField? = null
 
-    val grid = Grid(width, height, 50.0)
+    val grid = Grid(width, height, 50.0f)
     var floorType = 0
 
     val level = Level(grid)

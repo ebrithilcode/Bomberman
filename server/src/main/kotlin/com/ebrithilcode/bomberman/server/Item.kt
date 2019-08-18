@@ -1,9 +1,9 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
 import processing.core.PApplet
 import processing.core.PVector
 
-class Item(grid:Grid, pos : PVector,val itemID : String, val onCollect : (Pawn)->Unit) : Entity(grid){
+class Item(grid: Grid, pos : PVector, val itemID : String, val onCollect : (Pawn)->Unit) : Entity(grid){
 
 
     init {
@@ -45,7 +45,7 @@ fun createSpeedItem(grid: Grid, pos : PVector) : Item {
     return Item(grid, pos, "Speed", ::increaseSpeed)
 }
 fun createBombCountItem(grid: Grid, pos : PVector) : Item {
-    return Item(grid, pos,"MaxBombCount", ::increaseMaxBombs)
+    return Item(grid, pos, "MaxBombCount", ::increaseMaxBombs)
 }
 fun createBombRangeItem(grid: Grid, pos : PVector) : Item {
     return Item(grid, pos, "Range", ::increaseBombRange)
