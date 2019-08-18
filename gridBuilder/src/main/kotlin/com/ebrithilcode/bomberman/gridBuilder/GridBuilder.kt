@@ -89,7 +89,7 @@ class GridBuilder(width:Int, height:Int) : PApplet() {
             } else if (key == 'a') {
                 floorType--
             } else if (key=='s') {
-                level.saveToFile("TestLevel.data")
+                level.saveToFile("")
             }
             floorType %= 3
         }

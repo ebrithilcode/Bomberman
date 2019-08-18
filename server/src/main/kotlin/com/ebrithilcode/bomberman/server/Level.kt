@@ -9,13 +9,14 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 class Level(val grid: Grid) {
+
     companion object {
 
-        fun fromFile(file : String) : Level {
+        fun fromFile(file: String): Level {
             return decode(Files.readAllBytes(Paths.get(file)))
         }
 
-        fun decode(arr : ByteArray) : Level {
+        fun decode(arr: ByteArray): Level {
             val buffer = ByteBuffer.wrap(arr)
             val level = Level(Grid(buffer.int, buffer.int, 50.0f))
             for (subArray in level.grid.fields) {
@@ -37,18 +38,18 @@ class Level(val grid: Grid) {
     val positionMap = HashMap<String, PVector>()
 
 
-    fun encode() : ByteArray {
+    fun encode(): ByteArray {
         val obj = JSONObject()
         for (entry in positionMap.entries) {
             obj.setJSONArray(entry.key, JSONArray(FloatList(entry.value.x, entry.value.y)))
         }
         val mapBytes = grid.encodeToBytes()
         val positionBytes = obj.toString().toByteArray()
-        return ByteBuffer.allocate(mapBytes.size+positionBytes.size+4).put(mapBytes).putInt(positionBytes.size)
-            .put(positionBytes).array()
+        return ByteBuffer.allocate(mapBytes.size + positionBytes.size + 4).put(mapBytes).putInt(positionBytes.size)
+                .put(positionBytes).array()
     }
 
-    fun saveToFile(file : String) {
+    fun saveToFile(file: String) {
         Files.write(Paths.get(file), encode())
     }
 

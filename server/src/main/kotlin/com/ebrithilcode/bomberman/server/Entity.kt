@@ -7,30 +7,30 @@ import processing.core.PConstants
 import processing.core.PVector
 import kotlin.math.roundToInt
 
-open class Entity(val grid : Grid, val spriteID : Long) {
-    var position = PVector(0f,0f)
+open class Entity(val grid: Grid, val spriteID: Long) {
+    var position = PVector(0f, 0f)
     var facing = Direction.NORTH
     var speed = 0f
     var isDead = false
 
     val uniqueID = grid.getUniqueID()
 
-    open fun update(deltaTime : Float) {
+    open fun update(deltaTime: Float) {
         move()
     }
 
-    open fun show(applet : PApplet) {
-        applet.fill(255f,0f,0f)
+    open fun show(applet: PApplet) {
+        applet.fill(255f, 0f, 0f)
         applet.ellipseMode(PConstants.CENTER)
         applet.ellipse((position.x * grid.gridSize).toFloat(), (position.y * grid.gridSize).toFloat(),
-            grid.gridSize.toFloat(), grid.gridSize.toFloat())
+                grid.gridSize.toFloat(), grid.gridSize.toFloat())
     }
 
-    fun roundPosition() : PVector {
+    fun roundPosition(): PVector {
         return PVector(position.x.roundToInt().toFloat(), position.y.roundToInt().toFloat())
     }
 
-    fun getAbsolutePosition(): PVector = PVector((position.x*grid.gridSize).toFloat(), (position.y*grid.gridSize).toFloat())
+    fun getAbsolutePosition(): PVector = PVector((position.x * grid.gridSize).toFloat(), (position.y * grid.gridSize).toFloat())
 
 
     /**
@@ -38,7 +38,7 @@ open class Entity(val grid : Grid, val spriteID : Long) {
      * @param other The entity that is trying to enter this ones field
      * @return True if other entity is not allowed to enter this entities field, false if not.
      */
-    open fun isMoveRejected(other : Entity) : Boolean {
+    open fun isMoveRejected(other: Entity): Boolean {
         return true
     }
 
@@ -47,7 +47,7 @@ open class Entity(val grid : Grid, val spriteID : Long) {
      * Moves this entity if the move is not rejected by [Field.isMoveRejected] and manages changing of fields doing so
      */
     private fun move() {
-        if (speed>0) {
+        if (speed > 0) {
             if (!grid.isMoveRejected(this)) {
                 val currentField = roundPosition()
                 val direction = facing.vector
@@ -73,13 +73,9 @@ open class Entity(val grid : Grid, val spriteID : Long) {
     open fun slayThatBitch() {}
 
 
-
-
-    fun encodeToData() : EntityData {
+    fun encodeToData(): EntityData {
         return EntityData(uniqueID, spriteID, position.x, position.y, facing, speed)
     }
-
-
 
 
 }

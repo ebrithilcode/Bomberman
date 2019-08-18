@@ -1,8 +1,6 @@
 package com.ebrithilcode.bomberman.server
 
-import com.ebrithilcode.bomberman.common.Direction
-
-class Pawn(grid : Grid, spriteID: Long) : Entity(grid, spriteID) {
+class Pawn(grid: Grid, spriteID: Long) : Entity(grid, spriteID) {
 
     val bombList = mutableListOf<Bomb>()
     var allowedBombCount = 5
@@ -16,7 +14,7 @@ class Pawn(grid : Grid, spriteID: Long) : Entity(grid, spriteID) {
     }
 
     fun placeBomb() {
-        if (bombList.size<allowedBombCount) {
+        if (bombList.size < allowedBombCount) {
             val field = grid.getField(roundPosition())
             if (field.entitiesOnField.filterIsInstance<Bomb>().isEmpty()) {
                 println("Adding a bomb")

@@ -5,27 +5,27 @@ import processing.core.PConstants
 import processing.core.PVector
 
 
-class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid, 4) {
+class Bomb(grid: Grid, val lifeTime: Int, val placer: Pawn) : Entity(grid, 4) {
     val startTime = System.currentTimeMillis()
 
     companion object {
-        val defaultDirections = arrayOf(PVector(1f,0f), PVector(0f,1f),PVector(-1f,0f), PVector(0f,-1f))
+        val defaultDirections = arrayOf(PVector(1f, 0f), PVector(0f, 1f), PVector(-1f, 0f), PVector(0f, -1f))
     }
 
-    override fun update(deltaTime:Float) {
+    override fun update(deltaTime: Float) {
         //Called for bomb movement with gloves
         super.update(deltaTime)
-        if (System.currentTimeMillis()-startTime > lifeTime) {
+        if (System.currentTimeMillis() - startTime > lifeTime) {
             explode()
         }
     }
 
     override fun show(applet: PApplet) {
-        val time = System.currentTimeMillis()-startTime
+        val time = System.currentTimeMillis() - startTime
         applet.colorMode(PConstants.HSB)
-        applet.fill(330/360f*255, 255-((time/3)%255f), 255f)
-        applet.ellipse((position.x*grid.gridSize).toFloat(), (position.y*grid.gridSize).toFloat(),
-            grid.gridSize.toFloat(), grid.gridSize.toFloat()
+        applet.fill(330 / 360f * 255, 255 - ((time / 3) % 255f), 255f)
+        applet.ellipse((position.x * grid.gridSize).toFloat(), (position.y * grid.gridSize).toFloat(),
+                grid.gridSize.toFloat(), grid.gridSize.toFloat()
         )
         applet.colorMode(PConstants.RGB)
     }
@@ -40,7 +40,7 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid, 4) 
         return true
     }
 
-    private fun explode() : IntArray {
+    private fun explode(): IntArray {
         //For the field the bomb is lying on, we just have to check for entities
         for (onField in grid.getField(roundPosition()).entitiesOnField) onField.slayThatBitch()
         //rays are storing how long the bomb could explode in each direction from east on clockwise
@@ -49,13 +49,13 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid, 4) 
 
             //The field to check for entities to slay and for blocks that end this explosion
             val tracer = roundPosition()
-            inner@for (dist in 1..placer.explosionRange) {
+            inner@ for (dist in 1..placer.explosionRange) {
                 tracer.add(dir)
                 grid.getField(tracer).let {
-                    if (it.state!= Field.State.FREE) {
+                    if (it.state != Field.State.FREE) {
                         rays[index] = dist
                         //If the field was breakable, smash it
-                        if (it.state== Field.State.BREAKABLE) it.breakFree()
+                        if (it.state == Field.State.BREAKABLE) it.breakFree()
                     }
 
 
@@ -66,9 +66,9 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid, 4) 
                 }
 
                 //A ray already ended
-                if (rays[index]>0) break@inner
+                if (rays[index] > 0) break@inner
             }
-            if (rays[index]==0) rays[index] = placer.explosionRange
+            if (rays[index] == 0) rays[index] = placer.explosionRange
         }
         isDead = true
         return rays

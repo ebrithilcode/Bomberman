@@ -15,14 +15,6 @@ import kotlin.math.roundToInt
 class Grid(val width: Int, val height: Int, val gridSize: Float) {
 
 
-    /*On the subject of sprite ids:
-      0-3: Player$i
-      4: Bomb
-      5: Speed upgrade
-      6: Bomb Power upgrade
-      7: Bomb count upgrade
-      8: Bomb throw upgrade
-     */
     private val lastID = AtomicLong(0)
 
 
@@ -133,12 +125,12 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
         entityList.add(entity)
     }
 
-    fun getUniqueID() : Long {
+    fun getUniqueID(): Long {
         return lastID.getAndIncrement()
     }
 
-    fun encodeToRenderMessage() : RenderMessage {
-        return RenderMessage(encodeToBytes(), Array(entityList.size) {entityList[it].encodeToData()}, arrayOf())
+    fun encodeToRenderMessage(): RenderMessage {
+        return RenderMessage(encodeToBytes(), Array(entityList.size) { entityList[it].encodeToData() }, arrayOf())
     }
 
 }

@@ -12,3 +12,5 @@ suspend fun DatagramSocket.asyncReceive(packet : DatagramPacket) = withContext(D
 suspend fun DatagramSocket.asyncSend(packet : DatagramPacket) = withContext(Dispatchers.IO) {
     send(packet)
 }
+
+suspend fun DatagramPacket.getDataAsString() = String(data, offset, length, Charsets.UTF_8)
