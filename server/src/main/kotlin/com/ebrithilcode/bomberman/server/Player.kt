@@ -1,5 +1,8 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
+import com.ebrithilcode.bomberman.server.Grid
+import com.ebrithilcode.bomberman.server.Input
+import com.ebrithilcode.bomberman.server.Pawn
 import processing.core.PVector
 import java.net.Socket
 

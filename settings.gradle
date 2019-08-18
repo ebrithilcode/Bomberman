@@ -1,6 +1,6 @@
 rootProject.name = 'BomberMan'
 
-
 include("client")
 include("gridBuilder")
 include("server")
+include("common")

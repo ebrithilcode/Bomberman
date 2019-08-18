@@ -1,4 +1,4 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
 import processing.core.PVector
 import processing.data.FloatList
@@ -8,7 +8,7 @@ import java.nio.ByteBuffer
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class Level(val grid:Grid) {
+class Level(val grid: Grid) {
     companion object {
 
         fun fromFile(file : String) : Level {
