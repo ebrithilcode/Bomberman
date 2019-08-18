@@ -6,13 +6,13 @@ import com.ebrithilcode.bomberman.server.Pawn
 import processing.core.PVector
 import java.net.Socket
 
-class Player(socket : Socket, grid : Grid){
+class Player(socket : Socket, grid : Grid, playerNum : Int){
 
 
 
     val id = socket.remoteSocketAddress
     private val input = Input(socket.getInputStream())
-    val character : Pawn = Pawn(grid)
+    val character : Pawn = Pawn(grid, playerNum.toLong())
 
 
     init {

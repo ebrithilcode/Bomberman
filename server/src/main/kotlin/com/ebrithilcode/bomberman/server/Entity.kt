@@ -1,15 +1,19 @@
 package com.ebrithilcode.bomberman.server
 
+import com.ebrithilcode.bomberman.common.Direction
+import com.ebrithilcode.bomberman.common.klaxon.EntityData
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PVector
 import kotlin.math.roundToInt
 
-open class Entity(val grid : Grid) {
+open class Entity(val grid : Grid, val spriteID : Long) {
     var position = PVector(0f,0f)
     var direction = PVector(1f, 0f)
     var speed = 0f
     var isDead = false
+
+    val uniqueID = grid.getUniqueID()
 
     open fun update(deltaTime : Float) {
         move()
@@ -66,6 +70,22 @@ open class Entity(val grid : Grid) {
 
 
     open fun slayThatBitch() {}
+
+    fun getFacing() : Direction {
+        return if (direction.x==0f) {
+            if (direction.y>0) Direction.SOUTH
+            else Direction.NORTH
+        } else {
+            if (direction.x>0) Direction.EAST
+            else Direction.WEST
+        }
+    }
+
+
+
+    fun encodeToData() : EntityData {
+        return EntityData(uniqueID, spriteID, position.x, position.y, getFacing(), speed)
+    }
 
 
 

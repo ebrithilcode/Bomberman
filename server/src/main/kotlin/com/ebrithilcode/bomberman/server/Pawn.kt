@@ -1,6 +1,6 @@
 package com.ebrithilcode.bomberman.server
 
-class Pawn(grid : Grid) : Entity(grid) {
+class Pawn(grid : Grid, spriteID: Long) : Entity(grid, spriteID) {
 
     val bombList = mutableListOf<Bomb>()
     var allowedBombCount = 5

@@ -3,7 +3,7 @@ package com.ebrithilcode.bomberman.server
 import processing.core.PApplet
 import processing.core.PVector
 
-class Item(grid: Grid, pos : PVector, val itemID : String, val onCollect : (Pawn)->Unit) : Entity(grid){
+class Item(grid: Grid, pos : PVector, val itemID : String, spriteID: Long, val onCollect : (Pawn)->Unit) : Entity(grid, spriteID){
 
 
     init {
@@ -42,14 +42,14 @@ fun allowBombKnocking(pawn : Pawn) {
 }
 
 fun createSpeedItem(grid: Grid, pos : PVector) : Item {
-    return Item(grid, pos, "Speed", ::increaseSpeed)
+    return Item(grid, pos, "Speed",5L,  ::increaseSpeed)
 }
 fun createBombCountItem(grid: Grid, pos : PVector) : Item {
-    return Item(grid, pos, "MaxBombCount", ::increaseMaxBombs)
+    return Item(grid, pos, "MaxBombCount", 7L,  ::increaseMaxBombs)
 }
 fun createBombRangeItem(grid: Grid, pos : PVector) : Item {
-    return Item(grid, pos, "Range", ::increaseBombRange)
+    return Item(grid, pos, "Range", 6L,  ::increaseBombRange)
 }
 fun createGloveItem(grid: Grid, pos : PVector) : Item {
-    return Item(grid, pos, "Glove", ::allowBombKnocking)
+    return Item(grid, pos, "Glove", 8L, ::allowBombKnocking)
 }

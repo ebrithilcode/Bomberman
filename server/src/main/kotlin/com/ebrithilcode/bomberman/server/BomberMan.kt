@@ -28,7 +28,7 @@ class BomberMan(port : Int) : PApplet() {
 
     override fun setup() {
         server.acceptClients(1) { theSocket ->
-            Player(theSocket, grid).let {
+            Player(theSocket, grid, playerList.size).let {
                 it.character.position = level.positionMap["pos${playerList.size}"] ?: PVector(0f,0f)
                 grid.addEntity(it.character)
                 playerList.add(it)

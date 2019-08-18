@@ -1,16 +1,30 @@
 package com.ebrithilcode.bomberman.server
 
+import com.ebrithilcode.bomberman.common.klaxon.RenderMessage
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PVector
 import java.nio.ByteBuffer
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
 class Grid(val width: Int, val height: Int, val gridSize: Float) {
+
+
+    /*On the subject of sprite ids:
+      0-3: Player$i
+      4: Bomb
+      5: Speed upgrade
+      6: Bomb Power upgrade
+      7: Bomb count upgrade
+      8: Bomb throw upgrade
+     */
+    private val lastID = AtomicLong(0)
+
 
     private var entityList: MutableList<Entity> = CopyOnWriteArrayList()
 
@@ -114,6 +128,14 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
     fun addEntity(entity: Entity) {
         getField(entity.roundPosition()).entitiesOnField.add(entity)
         entityList.add(entity)
+    }
+
+    fun getUniqueID() : Long {
+        return lastID.getAndIncrement()
+    }
+
+    fun encodeToRenderMessage() : RenderMessage {
+        return RenderMessage(encodeToBytes(), Array(entityList.size) {entityList[it].encodeToData()}, arrayOf())
     }
 
 }
