@@ -51,9 +51,9 @@ project(":client") {
 project(":server") {
     apply(plugin="application")
     dependencies {
-        testImplementation(group= "org.processing", name= "core", version= "3.3.6")
         implementation(group= "com.beust", name= "klaxon", version= "5.0.11")
         implementation(project(":common"))
+        implementation(group= "org.processing", name= "core", version= "3.3.6")
     }
     application {
         mainClassName = "com.ebrithilcode.bomberman.server.BomberManKt"
