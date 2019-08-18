@@ -17,7 +17,7 @@ class Level(val grid:Grid) {
 
         fun decode(arr : ByteArray) : Level {
             val buffer = ByteBuffer.wrap(arr)
-            val level = Level(Grid(buffer.int, buffer.int, 50.0))
+            val level = Level(Grid(buffer.int, buffer.int, 50.0f))
             for (subArray in level.grid.fields) {
                 for (field in subArray) field.state = Field.numToState(buffer.get()) ?: Field.State.FREE
             }

@@ -10,7 +10,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-class Grid(val width : Int, val height : Int, val gridSize : Double) {
+class Grid(val width : Int, val height : Int, val gridSize : Float) {
 
     private var entityList : MutableList<Entity> = CopyOnWriteArrayList()
 
@@ -26,10 +26,10 @@ class Grid(val width : Int, val height : Int, val gridSize : Double) {
     }
 
     init {
-        Field.addItemDrop(Item::createSpeedItem)
-        Field.addItemDrop(Item::createBombCountItem)
-        Field.addItemDrop(Item::createBombRangeItem)
-        Field.addItemDrop(Item::createGloveItem)
+        Field.addItemDrop(::createSpeedItem)
+        Field.addItemDrop(::createBombCountItem)
+        Field.addItemDrop(::createBombRangeItem)
+        Field.addItemDrop(::createGloveItem)
         Field.dropRates = doubleArrayOf(0.25,0.25,0.25,0.25)
     }
 
@@ -109,9 +109,9 @@ class Grid(val width : Int, val height : Int, val gridSize : Double) {
             for (y in fields[x].indices) {
                 applet.fill(colors[fields[x][y].byteState.toInt()])
                 applet.stroke(0)
-                val position = PVector((x*gridSize).toFloat(), (y*gridSize).toFloat())
+                val position = PVector(x*gridSize, y*gridSize)
                 //if (fields[x][y].entitiesOnField.size>0) applet.fill(255f,0f,255f)
-                applet.rect(position.x, position.y, gridSize.toFloat(), gridSize.toFloat())
+                applet.rect(position.x, position.y, gridSize, gridSize)
             }
         }
         for (entity in entityList) entity.show(applet)
