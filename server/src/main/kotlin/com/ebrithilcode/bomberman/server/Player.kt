@@ -1,5 +1,6 @@
 package com.ebrithilcode.bomberman.server
 
+import com.ebrithilcode.bomberman.common.Direction
 import com.ebrithilcode.bomberman.server.Grid
 import com.ebrithilcode.bomberman.server.Input
 import com.ebrithilcode.bomberman.server.Pawn
@@ -17,17 +18,17 @@ class Player(socket : Socket, grid : Grid, playerNum : Int){
 
     init {
         val names = listOf("right", "down", "left", "up")
-        val directions = arrayOf(PVector(1f,0f), PVector(0f,1f), PVector(-1f,0f), PVector(0f, -1f))
+        val directions = arrayOf(Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH)
         val actions = List(4) {
             {
                 println("Action called: $it")
-                character.direction = directions[it]
+                character.facing = directions[it]
                 character.speed = character.maxSpeed
             }
         }
         val releaseActions = List(4) {
             {
-                if (character.direction == directions[it]) character.speed = 0f
+                if (character.facing == directions[it]) character.speed = 0f
             }
         }
         input.onKeyStroke(names, actions)

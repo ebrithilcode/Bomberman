@@ -53,6 +53,9 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
      * @param entity The entity to be moved
      */
     fun isMoveRejected(entity: Entity): Boolean {
+
+        val direction = entity.facing.vector
+
         val from = intArrayOf(entity.position.x.roundToInt(), entity.position.y.roundToInt())
         /*TODO: Reconsider if there is a solution that is more elegant. What [to] should be is the next round field
             the player will reach if he continues walking in [velocity] direction*/

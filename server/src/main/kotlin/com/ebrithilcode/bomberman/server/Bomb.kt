@@ -32,7 +32,7 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid, 4) 
     override fun isMoveRejected(other: Entity): Boolean {
         if (other is Pawn) {
             if (other.knockingBombs) {
-                direction = other.direction
+                facing = other.facing
                 speed = other.speed
             }
         }

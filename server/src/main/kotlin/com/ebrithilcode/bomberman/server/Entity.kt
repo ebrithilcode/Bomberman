@@ -9,7 +9,7 @@ import kotlin.math.roundToInt
 
 open class Entity(val grid : Grid, val spriteID : Long) {
     var position = PVector(0f,0f)
-    var direction = PVector(1f, 0f)
+    var facing = Direction.NORTH
     var speed = 0f
     var isDead = false
 
@@ -50,6 +50,7 @@ open class Entity(val grid : Grid, val spriteID : Long) {
         if (speed>0) {
             if (!grid.isMoveRejected(this)) {
                 val currentField = roundPosition()
+                val direction = facing.vector
                 position.add(PVector.mult(direction, speed))
 
                 if (direction.x == 0f) position.x = position.x.roundToInt().toFloat()
@@ -71,20 +72,11 @@ open class Entity(val grid : Grid, val spriteID : Long) {
 
     open fun slayThatBitch() {}
 
-    fun getFacing() : Direction {
-        return if (direction.x==0f) {
-            if (direction.y>0) Direction.SOUTH
-            else Direction.NORTH
-        } else {
-            if (direction.x>0) Direction.EAST
-            else Direction.WEST
-        }
-    }
 
 
 
     fun encodeToData() : EntityData {
-        return EntityData(uniqueID, spriteID, position.x, position.y, getFacing(), speed)
+        return EntityData(uniqueID, spriteID, position.x, position.y, facing, speed)
     }
 
 

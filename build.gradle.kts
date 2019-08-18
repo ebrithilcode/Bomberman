@@ -62,6 +62,7 @@ project(":server") {
 
 project(":common") {
     dependencies {
+        implementation(group= "org.processing", name= "core", version= "3.3.6")
         implementation(group= "com.beust", name= "klaxon", version= "5.0.11")
     }
 }
