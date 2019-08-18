@@ -1,8 +1,10 @@
 package com.ebrithilcode.bomberman
 
+import processing.core.PVector
 import java.util.HashMap
+import kotlin.random.Random
 
-class Field {
+class Field(val grid: Grid, val position: PVector) {
 
     companion object {
         val numToState : MutableMap<Byte, State> = HashMap()
@@ -12,6 +14,22 @@ class Field {
             numToState[2] = State.SOLID
         }
         fun numToState(byte: Byte) : State? = numToState[byte]
+
+        var dropRates : DoubleArray = DoubleArray(0)
+        private val itemDrops = mutableListOf<(Grid, PVector)->Item>()
+        fun addItemDrop(drop : (Grid, PVector) -> Item) {
+            itemDrops.add(drop)
+        }
+        fun getNextDrop(grid: Grid, position: PVector) : Item {
+            val rand = Random.nextDouble(1.0)
+            var sum = 0.0
+            for ((index, value) in dropRates.withIndex()) {
+                sum += value
+                if (sum > rand)
+                   return itemDrops[index](grid, position)
+            }
+            throw IllegalStateException("Item spawning rates dont add up to 1: ${dropRates.asList()}")
+        }
     }
 
     val entitiesOnField = mutableListOf<Entity>()
@@ -42,6 +60,9 @@ class Field {
     fun breakFree() {
         state = State.FREE
         //TODO("Implement item spawning")
+        val newItem = getNextDrop(grid, position)
+        grid.addEntity(newItem)
+
     }
 
     enum class State{

@@ -34,7 +34,7 @@ open class Entity(val grid : Grid) {
      * @param other The entity that is trying to enter this ones field
      * @return True if other entity is not allowed to enter this entities field, false if not.
      */
-    fun isMoveRejected(other : Entity) : Boolean {
+    open fun isMoveRejected(other : Entity) : Boolean {
         return true
     }
 
@@ -57,7 +57,6 @@ open class Entity(val grid : Grid) {
                     grid.fields[newField.x.toInt()][newField.y.toInt()].entitiesOnField.add(this)
 
                 }
-                println("Moving with $speed in $direction")
             } else {
                 position = roundPosition()
             }

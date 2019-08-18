@@ -3,10 +3,10 @@ package com.ebrithilcode.bomberman
 class Pawn(grid : Grid) : Entity(grid) {
 
     val bombList = mutableListOf<Bomb>()
-    val allowedBombCount = 5
-    val explosionRange = 1
-    val maxSpeed = 0.2f
-    val knockingBombs = false
+    var allowedBombCount = 5
+    var explosionRange = 1
+    var maxSpeed = 0.02f
+    var knockingBombs = false
 
 
     fun onAction() {
@@ -15,11 +15,13 @@ class Pawn(grid : Grid) : Entity(grid) {
 
     fun placeBomb() {
         if (bombList.size<allowedBombCount) {
-            println("Adding a bomb")
-            val bomb = Bomb(grid, 3000, this)
-            bomb.position = roundPosition()
-            grid.getField(bomb.position).entitiesOnField.add(bomb)
-            grid.entityList.add(bomb)
+            val field = grid.getField(roundPosition())
+            if (field.entitiesOnField.filterIsInstance<Bomb>().isEmpty()) {
+                println("Adding a bomb")
+                val bomb = Bomb(grid, 3000, this)
+                bomb.position = roundPosition()
+                grid.addEntity(bomb)
+            }
         }
     }
 
