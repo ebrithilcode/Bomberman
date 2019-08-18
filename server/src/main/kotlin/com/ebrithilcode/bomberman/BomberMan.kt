@@ -30,7 +30,7 @@ class BomberMan(port : Int) : PApplet() {
         server.acceptClients(1) { theSocket ->
             Player(theSocket, grid).let {
                 it.character.position = level.positionMap["pos${playerList.size}"] ?: PVector(0f,0f)
-                grid.entityList.add(it.character)
+                grid.addEntity(it.character)
                 playerList.add(it)
             }
         }
@@ -55,6 +55,9 @@ class BomberMan(port : Int) : PApplet() {
         grid.show(this)
         grid.update(1f/frameRate)
         popMatrix()
+        textSize(24f)
+        text("FrameRate: $frameRate", 20f, 20f)
+
     }
 
 }

@@ -4,21 +4,34 @@ import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PVector
 import java.nio.ByteBuffer
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-class Grid(val width : Int, val height : Int, val gridSize : Double) {
+class Grid(val width : Int, val height : Int, val gridSize : Float) {
 
-    var entityList = mutableListOf<Entity>()
+    private var entityList : MutableList<Entity> = CopyOnWriteArrayList()
 
     /**
      * Entities are allowed to take a turn when they are at least [cornerThreshold] close to a corner
      */
     private val cornerThreshold = 0.25
 
-    val fields = Array(width) { Array(height) {Field()}}
+    val fields = Array(width) {xPos ->
+        Array(height) {yPos ->
+            Field(this, PVector(xPos.toFloat(), yPos.toFloat()))
+        }
+    }
+
+    init {
+        Field.addItemDrop(::createSpeedItem)
+        Field.addItemDrop(::createBombCountItem)
+        Field.addItemDrop(::createBombRangeItem)
+        Field.addItemDrop(::createGloveItem)
+        Field.dropRates = doubleArrayOf(0.25,0.25,0.25,0.25)
+    }
 
 
     /**
@@ -76,7 +89,15 @@ class Grid(val width : Int, val height : Int, val gridSize : Double) {
         for (entity in entityList) {
             entity.update(deltaTime)
         }
-        entityList.removeIf(Entity::isDead)
+
+
+        //Remove all dead entities from the field they are standing on and from the whole entity list
+        val toRemove = entityList.filter(Entity::isDead)
+        for (removeThat in toRemove) {
+            entityList.remove(removeThat)
+            val success = getField(removeThat.roundPosition()).entitiesOnField.remove(removeThat)
+            if (!success) throw IllegalStateException("Entity $removeThat is not in the EntityList of the Field it stands on")
+        }
 
 
     }
@@ -88,9 +109,9 @@ class Grid(val width : Int, val height : Int, val gridSize : Double) {
             for (y in fields[x].indices) {
                 applet.fill(colors[fields[x][y].byteState.toInt()])
                 applet.stroke(0)
-                val position = PVector((x*gridSize).toFloat(), (y*gridSize).toFloat())
-                if (fields[x][y].entitiesOnField.size>0) applet.fill(255f,0f,255f)
-                applet.rect(position.x, position.y, gridSize.toFloat(), gridSize.toFloat())
+                val position = PVector(x*gridSize, y*gridSize)
+                //if (fields[x][y].entitiesOnField.size>0) applet.fill(255f,0f,255f)
+                applet.rect(position.x, position.y, gridSize, gridSize)
             }
         }
         for (entity in entityList) entity.show(applet)
@@ -98,6 +119,11 @@ class Grid(val width : Int, val height : Int, val gridSize : Double) {
 
     fun getField(pos : PVector): Field {
         return fields[pos.x.toInt()][pos.y.toInt()]
+    }
+
+    fun addEntity(entity : Entity) {
+        getField(entity.roundPosition()).entitiesOnField.add(entity)
+        entityList.add(entity)
     }
 
 

@@ -12,6 +12,8 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid) {
     }
 
     override fun update(deltaTime:Float) {
+        //Called for bomb movement with gloves
+        super.update(deltaTime)
         if (System.currentTimeMillis()-startTime > lifeTime) {
             explode()
         }
@@ -24,6 +26,16 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid) {
             grid.gridSize.toFloat(), grid.gridSize.toFloat()
         )
         applet.colorMode(PConstants.RGB)
+    }
+
+    override fun isMoveRejected(other: Entity): Boolean {
+        if (other is Pawn) {
+            if (other.knockingBombs) {
+                direction = other.direction
+                speed = other.speed
+            }
+        }
+        return true
     }
 
     private fun explode() : IntArray {
@@ -57,7 +69,6 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid) {
             if (rays[index]==0) rays[index] = placer.explosionRange
         }
         isDead = true
-        grid.getField(roundPosition()).entitiesOnField.remove(this)
         return rays
     }
 
