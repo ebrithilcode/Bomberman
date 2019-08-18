@@ -3,26 +3,33 @@ plugins {
     application
 }
 
-subprojects {
-    apply(plugin="kotlin")
-    apply(plugin="application")
+allprojects {
     group = "com.ebrithilcode.bomberman"
     version = "1.0"
     repositories {
-        mavenCentral()
+        //mavenCentral()
+        jcenter()
     }
+}
+
+application {
+    //TODO fix
+    mainClassName = ""
+}
+
+subprojects {
+    apply(plugin="kotlin")
     dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.41")
-        implementation(group= "javax.json", name= "javax.json-api", version= "1.1.4")
-        implementation(group= "org.glassfish", name= "javax.json", version= "1.0.4")
+        implementation(group= "org.jetbrains.kotlin", name= "kotlin-stdlib-jdk8", version= "1.3.41")
         implementation(group= "org.jetbrains.kotlinx", name= "kotlinx-coroutines-core", version= "1.3.0-RC2")
-        implementation(group = "org.processing", name= "core", version= "3.3.6")
     }
 }
 
 project(":gridBuilder") {
+    apply(plugin="application")
     dependencies {
-        "implementation"(project(":server"))
+        implementation(group= "org.processing", name= "core", version= "3.3.6")
+        implementation(project(":server"))
     }
     application {
         mainClassName = "com.ebrithilcode.bomberman.gridBuilder.GridBuilderKt"
@@ -30,15 +37,32 @@ project(":gridBuilder") {
 }
 
 project(":client") {
+    apply(plugin="application")
+    dependencies {
+        implementation(group= "org.processing", name= "core", version= "3.3.6")
+        implementation(group= "com.beust", name= "klaxon", version= "5.0.11")
+        implementation(project(":common"))
+    }
     application {
         mainClassName = "com.ebrithilcode.bomberman.client.ClientKt"
     }
 }
 
 project(":server") {
+    apply(plugin="application")
+    dependencies {
+        testImplementation(group= "org.processing", name= "core", version= "3.3.6")
+        implementation(group= "com.beust", name= "klaxon", version= "5.0.11")
+        implementation(project(":common"))
+    }
     application {
-        mainClassName = "com.ebrithilcode.bomberman.BomberManKt"
+        mainClassName = "com.ebrithilcode.bomberman.server.BomberManKt"
     }
 }
 
+project(":common") {
+    dependencies {
+        implementation(group= "com.beust", name= "klaxon", version= "5.0.11")
+    }
+}
 

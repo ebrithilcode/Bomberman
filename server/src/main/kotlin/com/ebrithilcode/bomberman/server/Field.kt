@@ -1,4 +1,4 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
 import processing.core.PVector
 import java.util.HashMap
@@ -49,7 +49,7 @@ class Field(val grid: Grid, val position: PVector) {
     }
 
     fun isMoveRejected(entity : Entity) : Boolean {
-        if (state!=State.FREE) return true
+        if (state!= State.FREE) return true
         for (fieldEntity in entitiesOnField) {
             if (fieldEntity.isMoveRejected(entity)) return true
         }
