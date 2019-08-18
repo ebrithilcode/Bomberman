@@ -3,9 +3,6 @@ package com.ebrithilcode.bomberman.server
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.InputStream
-import javax.json.Json
-import javax.json.JsonObject
-import javax.json.JsonObjectBuilder
 
 
 /**
@@ -16,22 +13,6 @@ import javax.json.JsonObjectBuilder
  */
 class Input(val inputStream : InputStream) {
 
-    companion object {
-        val usedKeys: JsonObject by lazy {
-                val builder : JsonObjectBuilder = Json.createObjectBuilder()
-                val keys = Json.createObjectBuilder()
-                keys.add("w", "up")
-                keys.add("a", "left")
-                keys.add("d", "right")
-                keys.add("s", "down")
-                keys.add(" ","action")
-                val keyCodes = Json.createObjectBuilder()
-                builder.add("keys", keys)
-                builder.add("keyCodes", keyCodes)
-                builder.build()
-        }
-    }
-
     init {
         GlobalScope.launch {
             while (true) manageInput()
@@ -41,7 +22,7 @@ class Input(val inputStream : InputStream) {
     /**
      * Storing booleans whether or not the specified actionKey is pressed or not
      */
-    private val keyMap = HashMap<String, Boolean>()
+    //private val keyMap = HashMap<String, Boolean>()
 
     /**
      * Storing Callbacks for a specified key(Stroke|Released) event. Subscribe to it via [onKeyStroke] or [onKeyRelease]

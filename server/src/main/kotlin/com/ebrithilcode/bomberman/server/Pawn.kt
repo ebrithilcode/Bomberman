@@ -1,5 +1,7 @@
 package com.ebrithilcode.bomberman.server
 
+import com.ebrithilcode.bomberman.common.Direction
+
 class Pawn(grid : Grid, spriteID: Long) : Entity(grid, spriteID) {
 
     val bombList = mutableListOf<Bomb>()
