@@ -44,7 +44,7 @@ project(":client") {
         implementation(project(":common"))
     }
     application {
-        mainClassName = "com.ebrithilcode.bomberman.client.ClientKt"
+        mainClassName = "com.ebrithilcode.bomberman.client.AppKt"
     }
 }
 

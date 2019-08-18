@@ -19,6 +19,7 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid, 4) 
             explode()
         }
     }
+
     override fun show(applet: PApplet) {
         val time = System.currentTimeMillis()-startTime
         applet.colorMode(PConstants.HSB)

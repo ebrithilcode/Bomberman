@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import processing.core.PApplet
 import processing.core.PConstants
+import processing.core.PVector
 import java.awt.GridBagConstraints
 import java.net.DatagramSocket
 import java.net.InetSocketAddress
@@ -32,30 +33,36 @@ class Client(val serverIP : String, val serverPort : Int) : PApplet() {
     private var idToAnimationMap: MutableMap<Long, Animation> = HashMap()
 
     override fun settings() {
-        size(300, 300)
+        size(800, 800)
     }
+
+    val testAnimation = BombAnimation(PVector(3f,3f), intArrayOf(1,2,3,4))
 
     override fun setup() {
         frameRate(60f)
+
+        //TODO Clean that up somehow
+        BombAnimation.setup(this, 50f)
     }
 
     override fun draw() {
         background(255)
-        val currentTime = System.currentTimeMillis()
+        /*val currentTime = System.currentTimeMillis()
         for(rc : RenderingComponent in idToEntityMap.values){
             rc.update(currentTime, this)
         }
         for(rc : RenderingComponent in idToAnimationMap.values){
             rc.update(currentTime, this)
-        }
+        }*/
+        testAnimation.render(this, 50f, System.currentTimeMillis()%3000)
     }
 
     fun handleMessage(msg: RenderMessage) {
         this.grid = Grid.fromData(msg.grid)
         idToEntityMap = msg.entities.asSequence() //entities need to be recreated every time since data can change
-                .associateByTo(HashMap(), { it.id }, { MockEntity(it) })
+                .associateByTo(mutableMapOf(), { it.id }, { MockEntity(it) })
         idToAnimationMap = msg.animations.asSequence() //animations can and should be reused
-                .associateByTo(HashMap(), { it.id }, { idToAnimationMap[it.id] ?: Animation(it) })
+                .associateByTo(mutableMapOf<Long, Animation>(), { it.id }, { idToAnimationMap[it.id] ?: Animation(it) })
 
     }
 
@@ -65,6 +72,16 @@ class Client(val serverIP : String, val serverPort : Int) : PApplet() {
             currentPlayerActions.add(conf.getPlayerAction(key))
         } else {
             currentPlayerActions.add(conf.getPlayerAction(keyCode))
+        }
+        when (key) {
+            'q' -> testAnimation.directionalLength[0]++
+            'a' -> testAnimation.directionalLength[0]--
+            'w' -> testAnimation.directionalLength[1]++
+            's' -> testAnimation.directionalLength[1]--
+            'e' -> testAnimation.directionalLength[2]++
+            'd' -> testAnimation.directionalLength[2]--
+            'r' -> testAnimation.directionalLength[3]++
+            'f' -> testAnimation.directionalLength[3]--
         }
     }
 

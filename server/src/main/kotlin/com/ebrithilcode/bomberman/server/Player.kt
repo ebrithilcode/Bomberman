@@ -2,21 +2,17 @@ package com.ebrithilcode.bomberman.server
 
 import com.ebrithilcode.bomberman.common.Direction
 import com.ebrithilcode.bomberman.common.PlayerAction
-import com.ebrithilcode.bomberman.server.Grid
-import com.ebrithilcode.bomberman.server.Input
-import com.ebrithilcode.bomberman.server.Pawn
-import processing.core.PVector
 import java.lang.IllegalArgumentException
 import java.net.Socket
 import java.util.*
 
-class Player(socket : Socket, grid : Grid, playerNum : Int){
+class Player(socket : Socket, grid : Grid, spriteID : Int){
 
     var currentActions = EnumSet.noneOf(PlayerAction::class.java)
 
     val id = socket.remoteSocketAddress
     private val input = Input(socket.getInputStream())
-    val character : Pawn = Pawn(grid, playerNum.toLong())
+    val character : Pawn = Pawn(grid, spriteID.toLong())
 
 
     fun onActionBegun(action : PlayerAction) {
