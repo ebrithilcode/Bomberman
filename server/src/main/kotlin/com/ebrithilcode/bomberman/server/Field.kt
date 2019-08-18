@@ -1,4 +1,4 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
 import java.util.HashMap
 
@@ -31,7 +31,7 @@ class Field {
     }
 
     fun isMoveRejected(entity : Entity) : Boolean {
-        if (state!=State.FREE) return true
+        if (state!= State.FREE) return true
         for (fieldEntity in entitiesOnField) {
             if (fieldEntity.isMoveRejected(entity)) return true
         }

@@ -1,12 +1,12 @@
 package com.ebrithilcode.bomberman.gridBuilder
 
-import com.ebrithilcode.bomberman.Field
+import com.ebrithilcode.bomberman.server.Field
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PVector
 import kotlin.math.floor
-import com.ebrithilcode.bomberman.Grid
-import com.ebrithilcode.bomberman.Level
+import com.ebrithilcode.bomberman.server.Grid
+import com.ebrithilcode.bomberman.server.Level
 
 fun main() {
     PApplet.runSketch(arrayOf("empty"), GridBuilder(10, 10))

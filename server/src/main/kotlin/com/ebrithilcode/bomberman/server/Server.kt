@@ -1,4 +1,4 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job

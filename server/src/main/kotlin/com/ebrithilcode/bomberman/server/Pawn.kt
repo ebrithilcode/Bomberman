@@ -1,4 +1,4 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
 class Pawn(grid : Grid) : Entity(grid) {
 

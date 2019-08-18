@@ -1,4 +1,4 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
 import processing.core.PApplet
 import processing.core.PConstants
@@ -18,7 +18,7 @@ class Grid(val width : Int, val height : Int, val gridSize : Double) {
      */
     private val cornerThreshold = 0.25
 
-    val fields = Array(width) { Array(height) {Field()}}
+    val fields = Array(width) { Array(height) { Field() }}
 
 
     /**

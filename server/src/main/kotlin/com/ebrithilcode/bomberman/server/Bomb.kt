@@ -1,4 +1,4 @@
-package com.ebrithilcode.bomberman
+package com.ebrithilcode.bomberman.server
 
 import processing.core.PApplet
 import processing.core.PConstants
@@ -38,10 +38,10 @@ class Bomb(grid: Grid, val lifeTime : Int, val placer : Pawn) : Entity(grid) {
             inner@for (dist in 1..placer.explosionRange) {
                 tracer.add(dir)
                 grid.getField(tracer).let {
-                    if (it.state!=Field.State.FREE) {
+                    if (it.state!= Field.State.FREE) {
                         rays[index] = dist
                         //If the field was breakable, smash it
-                        if (it.state==Field.State.BREAKABLE) it.breakFree()
+                        if (it.state== Field.State.BREAKABLE) it.breakFree()
                     }
 
 
