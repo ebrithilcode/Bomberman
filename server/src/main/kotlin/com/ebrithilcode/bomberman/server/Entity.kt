@@ -8,6 +8,7 @@ import processing.core.PVector
 import kotlin.math.roundToInt
 
 open class Entity(val grid: Grid, val spriteID: Long) {
+
     var position = PVector(0f, 0f)
     var facing = Direction.NORTH
     var speed = 0f
@@ -22,8 +23,8 @@ open class Entity(val grid: Grid, val spriteID: Long) {
     open fun show(applet: PApplet) {
         applet.fill(255f, 0f, 0f)
         applet.ellipseMode(PConstants.CENTER)
-        applet.ellipse((position.x * grid.gridSize).toFloat(), (position.y * grid.gridSize).toFloat(),
-                grid.gridSize.toFloat(), grid.gridSize.toFloat())
+        applet.ellipse((position.x * grid.gridSize), (position.y * grid.gridSize),
+                grid.gridSize, grid.gridSize)
     }
 
     fun roundPosition(): PVector {
@@ -70,7 +71,7 @@ open class Entity(val grid: Grid, val spriteID: Long) {
     }
 
 
-    open fun slayThatBitch() {}
+    open fun kill() {}
 
 
     fun encodeToData(): EntityData {

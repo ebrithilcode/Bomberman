@@ -8,7 +8,7 @@ import processing.core.PImage
 class MockEntity(val data : EntityData) : RenderingComponent(data.id, data.posX, data.posY) {
 
     var lastUpdateTimeStamp : Long = 0L
-    lateinit var sprite : PImage //TODO
+    //lateinit var sprite : PImage //TODO
 
     override fun update(currentTime: Long, applet: PApplet) {
         val deltaTime = currentTime - lastUpdateTimeStamp
@@ -19,7 +19,12 @@ class MockEntity(val data : EntityData) : RenderingComponent(data.id, data.posX,
             Direction.SOUTH -> posY += (deltaTime/1000) * data.velocity
             Direction.WEST -> posX -= (deltaTime/1000) * data.velocity
         }
-        applet.image(sprite, posX, posY)
+        //applet.image(Clie, posX, posY)
+        applet.fill(200f, 70f, 0f)
+        applet.ellipse(0f, 0f ,50f, 50f)
+        applet.stroke(0)
+        applet.strokeWeight(3f)
+        applet.line(0f, 0f, 25f, 25f)
     }
 
 }

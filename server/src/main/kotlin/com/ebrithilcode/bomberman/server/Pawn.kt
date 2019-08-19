@@ -8,11 +8,6 @@ class Pawn(grid: Grid, spriteID: Long) : Entity(grid, spriteID) {
     var maxSpeed = 0.02f
     var knockingBombs = false
 
-
-    fun onAction() {
-        placeBomb()
-    }
-
     fun placeBomb() {
         if (bombList.size < allowedBombCount) {
             val field = grid.getField(roundPosition())
@@ -25,7 +20,8 @@ class Pawn(grid: Grid, spriteID: Long) : Entity(grid, spriteID) {
         }
     }
 
-    override fun slayThatBitch() {
+    override fun kill() {
         isDead = true
     }
+
 }

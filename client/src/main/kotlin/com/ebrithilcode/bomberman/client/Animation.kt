@@ -11,7 +11,7 @@ class Animation(val data : AnimationData) : RenderingComponent(data.id, data.pos
     )
 
     override fun update(currentTime: Long, applet : PApplet) {
-        bombAnimation.render(applet, Client.gridSize, currentTime)
+        bombAnimation.render(applet, Client.GRID_SIZE, currentTime)
     }
 
 }

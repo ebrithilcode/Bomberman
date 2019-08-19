@@ -5,6 +5,7 @@ import com.ebrithilcode.bomberman.common.asyncReceive
 import com.ebrithilcode.bomberman.common.asyncSend
 import com.ebrithilcode.bomberman.common.getDataAsString
 import com.ebrithilcode.bomberman.common.klaxon.PlayerActionMessage
+import com.ebrithilcode.bomberman.common.klaxon.RenderMessage
 import kotlinx.coroutines.*
 import processing.core.PApplet
 import processing.core.PImage
@@ -73,7 +74,7 @@ object Server : PApplet() {
                 val regJson = Klaxon().parseJsonObject(StringReader(recvPacket.getDataAsString()))
                 val playerNum = addrToPlayerMap.size
                 addrToPlayerMap[recvPacket.socketAddress] = Player(regJson.string("name")
-                        ?: "ERROR_NAME", Pawn(grid, loadSpriteAndGetIdForPlayer(playerNum)))
+                        ?: "ERROR_NAME", Pawn(grid, /*loadSpriteAndGetIdForPlayer(playerNum)*/0L))
                 println("Player ${addrToPlayerMap[recvPacket.socketAddress]} connected!")
                 //send confirmation with connection port
                 val confJsonBytes = """
@@ -88,7 +89,7 @@ object Server : PApplet() {
         }
     }
 
-    private fun launchPlayerConnection(): Job = coScope.launch {
+    private fun launchPlayerConnectionReceive() : Job = coScope.launch {
         val recvPacket = DatagramPacket(ByteArray(8192), 8192)
         playerConnectionSocket.use {
             while (isActive) {
@@ -100,6 +101,20 @@ object Server : PApplet() {
                         ?: throw IllegalStateException() //TODO write message
             }
         }
+        println("Stopped listening for incoming PlayerActionMessages!")
+    }
+
+    private fun launchPlayerConnectionSend() : Job = coScope.launch {
+        playerConnectionSocket.use {
+            while(isActive) {
+                val bytes = Klaxon().toJsonString(grid.encodeToRenderMessage()).toByteArray(Charsets.UTF_8)
+                for(addr in addrToPlayerMap.keys) {
+                    val packet = DatagramPacket(bytes, bytes.size, addr)
+                    playerConnectionSocket.asyncSend(packet)
+                }
+            }
+        }
+        println("Stopped sending RenderMessages!")
     }
 
 
