@@ -15,6 +15,7 @@ import processing.core.PVector
 import java.io.StringReader
 import java.net.*
 import java.util.*
+import java.util.concurrent.TimeoutException
 import kotlin.collections.HashMap
 
 object Client : PApplet() {
@@ -52,10 +53,10 @@ object Client : PApplet() {
         runBlocking {
             registerAtServer().join()
         }
-        launchServerReceive()
+        /*launchServerReceive()
         launchServerSend()
         ellipseMode(CENTER)
-        rectMode(CENTER)
+        rectMode(CENTER)*/
     }
 
     override fun draw() {
@@ -91,11 +92,31 @@ object Client : PApplet() {
         val sendPacket = DatagramPacket(bytes, bytes.size, InetSocketAddress(REMOTE_IP, REMOTE_REGISTRATION_PORT))
         DatagramSocket().use {
             it.asyncSend(sendPacket)
+            println("Data send")
+
             val recvPacket = DatagramPacket(ByteArray(4096), 4096)
-            it.asyncReceive(recvPacket)
-            val json = Klaxon().parseJsonObject(StringReader(recvPacket.getDataAsString()))
-            if (json.boolean("success") == true) println("Successfully registered at server")
-            remoteConnectionPort = json.int("port") ?: throw java.lang.IllegalStateException() //TODO: write message
+            val isTimedOut = withTimeoutOrNull(1000) {
+
+                    GlobalScope.launch {
+                        try {
+                            it.asyncReceive(recvPacket)
+                        } catch (exception : SocketException) {
+                            println("Connection failed. Reconnecting...")
+                        }
+                    }.join()
+
+            }
+
+            println("Is it timed out? ${isTimedOut==null}")
+            if (isTimedOut==null) registerAtServer()
+            else {
+                val json = Klaxon().parseJsonObject(StringReader(recvPacket.getDataAsString()))
+                println("Data used")
+                if (json.boolean("success") == true) println("Successfully registered at server")
+                remoteConnectionPort =
+                    json.int("port") ?: throw java.lang.IllegalStateException() //TODO: write message
+            }
+
         }
     }
 

@@ -32,8 +32,8 @@ object Server : PApplet() {
 
     private val playerConnectionSocket = DatagramSocket(CONNECTION_PORT)
 
-    //private val level = Level.fromFile("${System.getProperty("user.dir")}/src/main/resources/TestLevel.data")
-    private val level = Level.fromFile("/home/rsttst/Coding/Projects/IntelliJ/Bomberman/server/src/main/resources/com.ebrithilcode.bomberman.server/TestLevel.data")
+    private val level = Level.fromFile("${System.getProperty("user.dir")}/src/main/resources/TestLevel.data")
+    //private val level = Level.fromFile("/home/rsttst/Coding/Projects/IntelliJ/Bomberman/server/src/main/resources/com.ebrithilcode.bomberman.server/TestLevel.data")
     private val grid = level.grid
 
     private val idToSpriteMap: MutableMap<Long, PImage> = HashMap(/*TODO: size arg*/)
@@ -48,6 +48,12 @@ object Server : PApplet() {
         frameRate(60f)
         clientJob = launchPlayerRegistration(1)
         println("Finished setup")
+        clientJob.invokeOnCompletion {
+            for ((index, player) in addrToPlayerMap.values.withIndex()) {
+                player.character.position = level.positionMap.get("pos$index") ?: throw IllegalStateException("The position $index is not declared in the level data ${level.positionMap}")
+            }
+            launchPlayerConnectionReceive()
+        }
     }
 
     private fun loadSpriteAndGetIdForPlayer(playerNum: Int): Long = loadSprite("player${playerNum % AVAILABLE_PLAYER_SPRITES}.png").first
@@ -124,10 +130,6 @@ object Server : PApplet() {
         fill(0f, 0f, 255f)
         textAlign(CENTER, CENTER)
 
-//        if (server.scheduledClients.get()>0) {
-//            text("Waiting for ${server.scheduledClients} clients", width / 2f, height / 2f)
-//            text("Job done? ${server.clientJob.isCompleted}", width / 2f, height / 2f + 40)
-//        }
 
         pushMatrix()
         translate((width / 2f - grid.width / 2f * grid.gridSize), (height / 2f - grid.height / 2f * grid.gridSize))
