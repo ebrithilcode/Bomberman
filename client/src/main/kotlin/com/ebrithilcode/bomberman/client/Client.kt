@@ -1,5 +1,6 @@
 package com.ebrithilcode.bomberman.client
 
+import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.ebrithilcode.bomberman.common.PlayerAction
 import com.ebrithilcode.bomberman.common.asyncReceive
@@ -49,7 +50,7 @@ object Client : PApplet() {
         frameRate(60f)
 
         runBlocking {
-            registerAtServer()
+            registerAtServer().join()
         }
         launchServerReceive()
         launchServerSend()
@@ -84,9 +85,13 @@ object Client : PApplet() {
     }
 
     private fun registerAtServer() : Job = connectionCoroutineScope.launch {
-        val recvPacket = DatagramPacket(ByteArray(4096), 4096, InetSocketAddress(REMOTE_IP, REMOTE_REGISTRATION_PORT))
-        val registrationSocket = DatagramSocket()
-        registrationSocket.use {
+        val bytes = """{
+            "name" : "philipp"
+        }""".toByteArray(Charsets.UTF_8)
+        val sendPacket = DatagramPacket(bytes, bytes.size, InetSocketAddress(REMOTE_IP, REMOTE_REGISTRATION_PORT))
+        DatagramSocket().use {
+            it.asyncSend(sendPacket)
+            val recvPacket = DatagramPacket(ByteArray(4096), 4096)
             it.asyncReceive(recvPacket)
             val json = Klaxon().parseJsonObject(StringReader(recvPacket.getDataAsString()))
             if (json.boolean("success") == true) println("Successfully registered at server")

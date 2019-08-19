@@ -33,7 +33,7 @@ object Server : PApplet() {
     private val playerConnectionSocket = DatagramSocket(CONNECTION_PORT)
 
     //private val level = Level.fromFile("${System.getProperty("user.dir")}/src/main/resources/TestLevel.data")
-    private val level = Level.fromFile("TestLevel.data")
+    private val level = Level.fromFile("/home/rsttst/Coding/Projects/IntelliJ/Bomberman/server/src/main/resources/com.ebrithilcode.bomberman.server/TestLevel.data")
     private val grid = level.grid
 
     private val idToSpriteMap: MutableMap<Long, PImage> = HashMap(/*TODO: size arg*/)
@@ -71,16 +71,17 @@ object Server : PApplet() {
                 //receive and register
                 recvPacket.length = recvPacket.data.size
                 it.asyncReceive(recvPacket)
+                println(recvPacket.getDataAsString())
                 val regJson = Klaxon().parseJsonObject(StringReader(recvPacket.getDataAsString()))
                 val playerNum = addrToPlayerMap.size
                 addrToPlayerMap[recvPacket.socketAddress] = Player(regJson.string("name")
                         ?: "ERROR_NAME", Pawn(grid, /*loadSpriteAndGetIdForPlayer(playerNum)*/0L))
                 println("Player ${addrToPlayerMap[recvPacket.socketAddress]} connected!")
                 //send confirmation with connection port
-                val confJsonBytes = """
+                val confJsonBytes = """{
                         "success" : true,
                         "port" : $CONNECTION_PORT
-                    """.toByteArray(Charsets.UTF_8)
+                }""".toByteArray(Charsets.UTF_8)
                 val sendPacket = DatagramPacket(confJsonBytes, confJsonBytes.size, recvPacket.socketAddress)
                 it.asyncSend(sendPacket)
                 println("Confirmed player!")
