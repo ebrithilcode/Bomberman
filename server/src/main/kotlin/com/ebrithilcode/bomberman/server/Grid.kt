@@ -1,5 +1,6 @@
 package com.ebrithilcode.bomberman.server
 
+import com.ebrithilcode.bomberman.common.klaxon.AnimationData
 import com.ebrithilcode.bomberman.common.klaxon.RenderMessage
 import processing.core.PApplet
 import processing.core.PConstants
@@ -19,6 +20,8 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
 
 
     private var entityList: MutableList<Entity> = CopyOnWriteArrayList()
+
+    val animationList : MutableList<ServerAnimation> = CopyOnWriteArrayList()
 
     /**
      * Entities are allowed to take a turn when they are at least [cornerThreshold] close to a corner
@@ -51,15 +54,15 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
         val from = intArrayOf(entity.position.x.roundToInt(), entity.position.y.roundToInt())
         /*TODO: Reconsider if there is a solution that is more elegant. What [to] should be is the next round field
             the player will reach if he continues walking in [velocity] direction*/
-        val newPosition = PVector.add(entity.position, PVector.mult(entity.direction, entity.speed))
-        val to = if (entity.direction.x.compareTo(0) != 0) {
-            if (entity.direction.x.compareTo(0) > 0) {
+        val newPosition = PVector.add(entity.position, PVector.mult(direction, entity.speed))
+        val to = if (direction.x.compareTo(0) != 0) {
+            if (direction.x.compareTo(0) > 0) {
                 intArrayOf(ceil(newPosition.x).toInt(), newPosition.y.roundToInt())
             } else {
                 intArrayOf(floor(newPosition.x).toInt(), newPosition.y.roundToInt())
             }
         } else {
-            if (entity.direction.y.compareTo(0) > 0) {
+            if (direction.y.compareTo(0) > 0) {
                 intArrayOf(newPosition.x.roundToInt(), ceil(newPosition.y).toInt())
             } else {
                 intArrayOf(newPosition.x.roundToInt(), floor(newPosition.y).toInt())
@@ -67,7 +70,7 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
         }
         //If the distance from the round field to the true position along the axis that is not currently being used
         //is bigger than the threshold, the move is rejected
-        if (entity.direction.x.compareTo(0) != 0) {
+        if (direction.x.compareTo(0) != 0) {
             if (abs(entity.position.y.roundToInt() - entity.position.y) > cornerThreshold) return true
         } else {
             if (abs(entity.position.x.roundToInt() - entity.position.x) > cornerThreshold) return true
@@ -98,6 +101,8 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
             val success = getField(removeThat.roundPosition()).entitiesOnField.remove(removeThat)
             if (!success) throw IllegalStateException("Entity $removeThat is not in the EntityList of the Field it stands on")
         }
+
+        animationList.removeIf(ServerAnimation::isDead)
     }
 
     //TODO: Remove that, should be client side
@@ -130,7 +135,13 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
     }
 
     fun encodeToRenderMessage(): RenderMessage {
-        return RenderMessage(encodeToBytes(), Array(entityList.size) { entityList[it].encodeToData() }, arrayOf())
+        val arr = Array<AnimationData>(animationList.size) {
+            animationList[it].let {
+                it.animationData.timeStamp = System.currentTimeMillis() - it.lifeStart
+            }
+            animationList[it].animationData
+        }
+        return RenderMessage(encodeToBytes(), Array(entityList.size) { entityList[it].encodeToData() }, arr)
     }
 
 }

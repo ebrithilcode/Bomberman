@@ -1,5 +1,9 @@
 package com.ebrithilcode.bomberman.server
 
+import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonObject
+import com.ebrithilcode.bomberman.common.Direction
+import com.ebrithilcode.bomberman.common.klaxon.AnimationData
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PVector
@@ -9,7 +13,7 @@ class Bomb(grid: Grid, val lifeTime: Int, val placer: Pawn) : Entity(grid, 4) {
     val startTime = System.currentTimeMillis()
 
     companion object {
-        val defaultDirections = arrayOf(PVector(1f, 0f), PVector(0f, 1f), PVector(-1f, 0f), PVector(0f, -1f))
+        val defaultDirections = arrayOf(Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH)
     }
 
     override fun update(deltaTime: Float) {
@@ -50,7 +54,7 @@ class Bomb(grid: Grid, val lifeTime: Int, val placer: Pawn) : Entity(grid, 4) {
             //The field to check for entities to slay and for blocks that end this explosion
             val tracer = roundPosition()
             inner@ for (dist in 1..placer.explosionRange) {
-                tracer.add(dir)
+                tracer.add(dir.vector)
                 grid.getField(tracer).let {
                     if (it.state != Field.State.FREE) {
                         rays[index] = dist
@@ -71,6 +75,12 @@ class Bomb(grid: Grid, val lifeTime: Int, val placer: Pawn) : Entity(grid, 4) {
             if (rays[index] == 0) rays[index] = placer.explosionRange
         }
         isDead = true
+        val pos = roundPosition()
+        val animationData = AnimationData(0,0,pos.x, pos.y, System.currentTimeMillis(), JsonObject(
+            mutableMapOf("dirMags" to JsonArray(rays.asList()))
+        ))
+        grid.animationList.add(ServerAnimation(animationData, 500L))
+
         return rays
     }
 

@@ -1,5 +1,6 @@
 package com.ebrithilcode.bomberman.common.klaxon
 
+import com.beust.klaxon.JsonObject
 import com.ebrithilcode.bomberman.common.Direction
 import com.ebrithilcode.bomberman.common.PlayerAction
 import java.util.*
@@ -34,4 +35,4 @@ data class RenderMessage(val grid: ByteArray, val entities: Array<EntityData>, v
 
 data class EntityData(val id: Long, val spriteId: Long, val posX: Float, val posY: Float, val facing: Direction, val velocity: Float)
 
-data class AnimationData(val id: Long, val animationId: Long, val posX: Float, val posY: Float, val startTime: Long)
+data class AnimationData(val id: Long, val animationId: Long, val posX: Float, val posY: Float, var timeStamp: Long, val metaData : JsonObject)

@@ -1,24 +1,17 @@
 package com.ebrithilcode.bomberman.client
 
 import com.ebrithilcode.bomberman.common.klaxon.AnimationData
-import kotlinx.coroutines.flow.asFlow
 import processing.core.PApplet
-import processing.core.PImage
+import processing.core.PVector
 
 class Animation(val data : AnimationData) : RenderingComponent(data.id, data.posX, data.posY) {
 
-    //val duration = data.delayPerImage.sum()
+    val bombAnimation = BombAnimation(PVector(data.posX, data.posY),
+        data.metaData.array<Int>("dirMags")?.toIntArray() ?: intArrayOf(0,0,0,0)
+    )
 
     override fun update(currentTime: Long, applet : PApplet) {
-//        val animationTime = (currentTime - startTime) % duration
-//        var sum = 0
-//        for((index, time) in delayPerImage.withIndex()) {
-//            sum += time
-//            if(sum >= animationTime) {
-//                applet.image(images[index], posX, posY)
-//                return
-//            }
-//        }
+        bombAnimation.render(applet, Client.gridSize, currentTime)
     }
 
 }
