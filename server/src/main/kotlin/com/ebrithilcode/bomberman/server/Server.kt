@@ -51,7 +51,9 @@ object Server : PApplet() {
         clientJob.invokeOnCompletion {
             for ((index, player) in addrToPlayerMap.values.withIndex()) {
                 player.character.position = level.positionMap.get("pos$index") ?: throw IllegalStateException("The position $index is not declared in the level data ${level.positionMap}")
+                grid.addEntity(player.character)
             }
+            launchPlayerConnectionSend()
             launchPlayerConnectionReceive()
         }
     }
@@ -102,10 +104,13 @@ object Server : PApplet() {
             while (isActive) {
                 recvPacket.length = recvPacket.data.size
                 it.asyncReceive(recvPacket)
-                val msg = Klaxon().parse<PlayerActionMessage>(recvPacket.getDataAsString())
+                val asString = recvPacket.getDataAsString()
+                println("Received string: $asString")
+                val msg = Klaxon().parse<PlayerActionMessage>(asString)
                         ?: throw IllegalStateException() //TODO write message
-                addrToPlayerMap[recvPacket.socketAddress]?.onPlayerActionUpdate(msg.actions)
-                        ?: throw IllegalStateException() //TODO write message
+                addrToPlayerMap.playerByAddress(recvPacket.socketAddress)?.onPlayerActionUpdate(msg.actions)
+                        ?: throw IllegalStateException("Can't find Socket address ${recvPacket.socketAddress} " +
+                                "in the map $addrToPlayerMap") //TODO write message
             }
         }
         println("Stopped listening for incoming PlayerActionMessages!")
@@ -139,6 +144,19 @@ object Server : PApplet() {
         textSize(24f)
         text("FrameRate: $frameRate", 20f, 20f)
 
+    }
+
+    private fun MutableMap<SocketAddress, Player>.playerByAddress(adr: SocketAddress) : Player? {
+        for (address in this.keys) {
+            if (address.toString().split(":")[0]==adr.toString().split(":")[0])
+                //Dirty workaround to get the update addresses during updating process TODO: RECONSIDER SOCKETADDRESS
+                if (adr!=address) {
+                    put(adr, get(address) ?: throw IllegalStateException("Address is weird"))
+                    remove(address)
+                }
+                return get(adr)
+        }
+        return null
     }
 
 

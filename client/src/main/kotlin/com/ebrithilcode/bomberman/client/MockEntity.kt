@@ -20,6 +20,7 @@ class MockEntity(val data : EntityData) : RenderingComponent(data.id, data.posX,
             Direction.WEST -> posX -= (deltaTime/1000) * data.velocity
         }
         //applet.image(Clie, posX, posY)
+        println("Rendering entity at $posX/$posY")
         applet.fill(200f, 70f, 0f)
         applet.ellipse(0f, 0f ,50f, 50f)
         applet.stroke(0)

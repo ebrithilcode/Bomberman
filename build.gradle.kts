@@ -23,6 +23,8 @@ subprojects {
         implementation(group= "org.jetbrains.kotlin", name= "kotlin-stdlib-jdk8", version= "1.3.41")
         implementation(group= "org.jetbrains.kotlinx", name= "kotlinx-coroutines-core", version= "1.3.0-RC2")
     }
+
+
 }
 
 project(":gridBuilder") {
@@ -36,12 +38,28 @@ project(":gridBuilder") {
     }
 }
 
+
+
 project(":client") {
     apply(plugin="application")
+
+    tasks.test {
+        useJUnitPlatform()
+    }
+
+
     dependencies {
         implementation(group= "org.processing", name= "core", version= "3.3.6")
         implementation(group= "com.beust", name= "klaxon", version= "5.0.11")
         implementation(project(":common"))
+
+
+        testCompile("org.assertj:assertj-core:3.11.1")
+
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
+
+        //testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
     }
     application {
         mainClassName = "com.ebrithilcode.bomberman.client.AppKt"

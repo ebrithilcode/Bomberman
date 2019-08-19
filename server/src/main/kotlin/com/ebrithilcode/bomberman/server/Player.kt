@@ -6,7 +6,7 @@ import java.util.*
 
 class Player(val name: String, val character: Pawn) {
 
-    var currentActions = EnumSet.noneOf(PlayerAction::class.java)
+    var currentActions : Set<PlayerAction> = EnumSet.noneOf(PlayerAction::class.java)
 
     fun onActionBegun(action: PlayerAction) {
         when (action) {
@@ -42,15 +42,16 @@ class Player(val name: String, val character: Pawn) {
                 if (character.facing == Direction.WEST) character.speed = 0f
             }
             PlayerAction.SWITCH -> {
+
             }
             PlayerAction.UNASSIGNED -> throw IllegalArgumentException() //TODO write message
         }
     }
 
-    fun onPlayerActionUpdate(newActions: EnumSet<PlayerAction>) {
-        var actionsBegun = newActions - currentActions
+    fun onPlayerActionUpdate(newActions: Set<PlayerAction>) {
+        val actionsBegun = newActions - currentActions
         actionsBegun.forEach(this::onActionBegun)
-        var actionsStopped = currentActions - newActions
+        val actionsStopped = currentActions - newActions
         actionsStopped.forEach(this::onActionStopped)
         currentActions = newActions
     }

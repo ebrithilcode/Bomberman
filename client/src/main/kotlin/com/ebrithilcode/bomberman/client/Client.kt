@@ -53,33 +53,38 @@ object Client : PApplet() {
         runBlocking {
             registerAtServer().join()
         }
-        /*launchServerReceive()
+
+        launchServerReceive()
         launchServerSend()
         ellipseMode(CENTER)
-        rectMode(CENTER)*/
+        rectMode(CENTER)
     }
 
     override fun draw() {
         background(255)
         val currentTime = System.currentTimeMillis()
+        println("Map: $idToEntityMap")
         for(rc : RenderingComponent in idToEntityMap.values) {
-            pushMatrix()
-            translate(rc.posX, rc.posY)
+            //pushMatrix()
+            //translate(rc.posX, rc.posY)
+            println("Updating $rc")
             rc.update(currentTime, this)
-            popMatrix()
+            //popMatrix()
         }
         for(rc : RenderingComponent in idToAnimationMap.values) {
-            pushMatrix()
-            translate(rc.posX, rc.posY)
+            //pushMatrix()
+            //translate(rc.posX, rc.posY)
             rc.update(currentTime, this)
-            popMatrix()
+            //popMatrix()
         }
     }
 
     fun handleMessage(msg: RenderMessage) {
+        println("Handling $msg")
         this.grid = Grid.fromData(msg.grid)
         idToEntityMap = msg.entities.asSequence() //entities need to be recreated every time since data can change
                 .associateByTo(mutableMapOf(), { it.id }, { MockEntity(it) })
+        println("Id to entity map now is $idToEntityMap")
         idToAnimationMap = msg.animations.asSequence() //animations can and should be reused
                 .associateByTo(mutableMapOf<Long, Animation>(), { it.id }, { idToAnimationMap[it.id] ?: Animation(it) })
 
@@ -100,15 +105,14 @@ object Client : PApplet() {
                     GlobalScope.launch {
                         try {
                             it.asyncReceive(recvPacket)
-                        } catch (exception : SocketException) {
-                            println("Connection failed. Reconnecting...")
+                        } catch (ignore : SocketException) {
                         }
                     }.join()
 
             }
 
             println("Is it timed out? ${isTimedOut==null}")
-            if (isTimedOut==null) registerAtServer()
+            if (isTimedOut==null) registerAtServer().join()
             else {
                 val json = Klaxon().parseJsonObject(StringReader(recvPacket.getDataAsString()))
                 println("Data used")
@@ -126,6 +130,8 @@ object Client : PApplet() {
             while (isActive) {
                 recvPacket.length = recvPacket.data.size
                 it.asyncReceive(recvPacket)
+                val str = recvPacket.getDataAsString()
+                println("Received $str")
                 val msg = Klaxon().parse<RenderMessage>(recvPacket.getDataAsString())
                         ?: throw IllegalStateException() //TODO write message
                 handleMessage(msg)
@@ -137,7 +143,7 @@ object Client : PApplet() {
     private fun launchServerSend() : Job = connectionCoroutineScope.launch {
         socket.use {
             while(isActive) {
-                val bytes = Klaxon().toJsonString(PlayerActionMessage(currentPlayerActions)).toByteArray(Charsets.UTF_8)
+                val bytes = Klaxon().toJsonString(PlayerActionMessage(currentPlayerActions.minus(PlayerAction.UNASSIGNED))).toByteArray(Charsets.UTF_8)
                 val packet = DatagramPacket(bytes, bytes.size, InetSocketAddress(REMOTE_IP, remoteConnectionPort))
                 it.asyncSend(packet)
             }
