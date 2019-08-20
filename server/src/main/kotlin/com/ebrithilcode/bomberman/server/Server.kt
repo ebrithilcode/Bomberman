@@ -43,6 +43,8 @@ object Server : PApplet() {
 
     lateinit var job : Job
 
+    val playersToConnect = 1
+
     override fun settings() {
         size(800, 800)
     }
@@ -50,7 +52,7 @@ object Server : PApplet() {
     override fun setup() {
         println("Started setup...")
         frameRate(60f)
-        job = launchServer(1)
+        job = launchServer(playersToConnect)
         Runtime.getRuntime().addShutdownHook(Thread {
             job.cancel()
         })
@@ -61,13 +63,20 @@ object Server : PApplet() {
         fill(0f, 0f, 255f)
         textAlign(CENTER, CENTER)
 
+
+        grid.update(1f/frameRate)
+
         pushMatrix()
-        translate((width / 2f - grid.width / 2f * grid.gridSize), (height / 2f - grid.height / 2f * grid.gridSize))
-        grid.show(this)
-        grid.update(1f / frameRate)
-        popMatrix()
+        translate(width/2f, height/2f)
+        //translate((width / 2f - grid.width / 2f * grid.gridSize), (height / 2f - grid.height / 2f * grid.gridSize))
+        textSize(20f)
+        text("Clients to connect: ${playersToConnect - addrToPlayerMap.size}", 0f, 0f)
+        /*grid.show(this)
+
+
         textSize(24f)
-        text("FrameRate: $frameRate", 20f, 20f)
+        text("FrameRate: $frameRate", 20f, 20f)*/
+        popMatrix()
     }
 
     private fun loadSpriteAndGetIdForPlayer(playerNum: Int): Long = loadSprite("player${playerNum % AVAILABLE_PLAYER_SPRITES}.png").first

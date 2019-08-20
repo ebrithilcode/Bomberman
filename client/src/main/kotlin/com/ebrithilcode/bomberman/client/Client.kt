@@ -50,7 +50,7 @@ object Client : PApplet() {
     override fun setup() {
         println("Started setup...")
         frameRate(60f)
-        job = launchClient("Philipp")
+        job = launchClient("Kilian")
         Runtime.getRuntime().addShutdownHook(Thread {
             job.cancel()
         })
@@ -121,13 +121,14 @@ object Client : PApplet() {
     private suspend fun startMessageReceiveLoop(socket : DatagramSocket) = coroutineScope {
         println("Now listening for incoming RenderMessages...")
         val recvPacket = DatagramPacket(ByteArray(8192), 8192)
-        while (isActive) {
+        loop@while (isActive) {
             recvPacket.length = recvPacket.data.size
             try {
                 socket.asyncReceive(recvPacket)
             }
             catch (ex : SocketTimeoutException) {
                 println("Server timed out...")
+                continue@loop
                 //TODO: if multiple timeouts happen then stop exceptionally
             }
             val msg = json.parse(RenderMessage.serializer(), recvPacket.getDataAsString())

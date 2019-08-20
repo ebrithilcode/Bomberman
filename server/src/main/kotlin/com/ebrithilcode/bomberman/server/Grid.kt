@@ -135,13 +135,15 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
     }
 
     fun encodeToRenderMessage(): RenderMessage {
-        val arr = Array<AnimationData>(animationList.size) {
-            animationList[it].let {
+        val listCopy = ArrayList(animationList)
+        val arr = Array<AnimationData>(listCopy.size) {
+            listCopy[it].let {
                 it.animationData.timeStamp = System.currentTimeMillis() - it.lifeStart
             }
-            animationList[it].animationData
+            listCopy[it].animationData
         }
-        return RenderMessage(encodeToBytes().toTypedArray(), Array(entityList.size) { entityList[it].encodeToData() }, arr)
+        val otherListCopy = ArrayList(entityList)
+        return RenderMessage(encodeToBytes().toTypedArray(), Array(otherListCopy.size) { otherListCopy[it].encodeToData() }, arr)
     }
 
 }
