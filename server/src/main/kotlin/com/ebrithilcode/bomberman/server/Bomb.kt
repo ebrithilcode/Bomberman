@@ -2,12 +2,8 @@ package com.ebrithilcode.bomberman.server
 
 import com.ebrithilcode.bomberman.common.Direction
 import com.ebrithilcode.bomberman.common.klaxon.AnimationData
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonPrimitive
 import processing.core.PApplet
 import processing.core.PConstants
-import processing.core.PVector
 
 
 class Bomb(grid: Grid, val lifeTime: Int, val placer: Pawn) : Entity(grid, 4) {
@@ -49,16 +45,16 @@ class Bomb(grid: Grid, val lifeTime: Int, val placer: Pawn) : Entity(grid, 4) {
         //For the field the bomb is lying on, we just have to check for entities
         for (onField in grid.getField(roundPosition()).entitiesOnField) onField.kill()
         //rays are storing how long the bomb could explode in each direction from east on clockwise
-        val rays = IntArray(4)
+        val rays = IntArray(4) { -1 }
         for ((index, dir) in defaultDirections.withIndex()) {
 
             //The field to check for entities to slay and for blocks that end this explosion
-            val tracer = roundPosition()
+            val currentField = roundPosition()
             inner@ for (dist in 1..placer.explosionRange) {
-                tracer.add(dir.vector)
-                grid.getField(tracer).let {
+                currentField.add(dir.vector)
+                grid.getField(currentField).let {
                     if (it.state != Field.State.FREE) {
-                        rays[index] = dist
+                        rays[index] = dist - 1
                         //If the field was breakable, smash it
                         if (it.state == Field.State.BREAKABLE) it.breakFree()
                     }
@@ -70,10 +66,11 @@ class Bomb(grid: Grid, val lifeTime: Int, val placer: Pawn) : Entity(grid, 4) {
                     }
                 }
 
-                //A ray already ended
-                if (rays[index] > 0) break@inner
+                if (rays[index]>-1) break@inner
+
+
             }
-            if (rays[index] == 0) rays[index] = placer.explosionRange
+            if (rays[index] == -1) rays[index] = placer.explosionRange
         }
         isDead = true
 

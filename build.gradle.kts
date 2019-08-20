@@ -13,6 +13,16 @@ allprojects {
     }
 }
 
+/*tasks {
+    register("run 'em all", GradleBuild::class) {
+        tasks = listOf("client:run", "server:run")
+    }
+}*/
+
+tasks.register<Task>("run 'em all") {
+    dependsOn("client:run", "server:run")
+}
+
 application {
     //TODO fix
     mainClassName = ""

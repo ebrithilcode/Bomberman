@@ -55,6 +55,7 @@ object Client : PApplet() {
             job.cancel()
         })
         println("Finished setup!")
+        rectMode(CENTER)
     }
 
     override fun draw() {
@@ -62,7 +63,13 @@ object Client : PApplet() {
         val currentTime = System.currentTimeMillis()
 
         pushMatrix()
-        //translate(width/2f - grid.gridSize * grid.width/2, height/2f - grid.gridSize*grid.width/2)
+
+
+        if (::grid.isInitialized) {
+            translate(width / 2f - grid.gridSize * grid.width / 2, height / 2f - grid.gridSize * grid.width / 2)
+            grid.show(this)
+        }
+
         for(rc : RenderingComponent in idToEntityMap.values) {
             pushMatrix()
             translate(rc.posX * grid.gridSize, rc.posY * grid.gridSize)
@@ -147,9 +154,15 @@ object Client : PApplet() {
 
     override fun keyPressed() {
         if (key.toInt() != CODED) {
-            currentPlayerActions.add(conf.getPlayerAction(key))
+            conf.getPlayerAction(key).let {
+                if (it != PlayerAction.UNASSIGNED)
+                    currentPlayerActions.add(it)
+            }
         } else {
-            currentPlayerActions.add(conf.getPlayerAction(keyCode))
+            conf.getPlayerAction(keyCode).let {
+                if (it != PlayerAction.UNASSIGNED)
+                    currentPlayerActions.add(it)
+            }
         }
     }
 

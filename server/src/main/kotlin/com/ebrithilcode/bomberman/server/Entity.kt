@@ -74,7 +74,7 @@ open class Entity(val grid: Grid, val spriteID: Long) {
     open fun kill() {}
 
 
-    fun encodeToData(): EntityData {
+    open fun encodeToData(): EntityData {
         return EntityData(uniqueID, spriteID, position.x, position.y, facing, speed)
     }
 

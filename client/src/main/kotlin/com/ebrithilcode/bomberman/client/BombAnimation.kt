@@ -13,22 +13,26 @@ class BombAnimation(val position : PVector, val directionalLength : IntArray) {
         lateinit var center : PImage
         lateinit var edges : Array<PImage>
         lateinit var ends : Array<PImage>
+
+        var isInitialized = false
         fun setup(applet: PApplet, gridSize : Float) {
             val baseFile = "${System.getProperty("user.dir")}/src/main/resources/ExplosionTiles"
             center = applet.loadImage("$baseFile/BummZentrum.png")
-            edges = Array(2) {applet.loadImage("$baseFile/StreckenTile${it+1}.png")}
-            ends = Array(2) {applet.loadImage("$baseFile/Ende${it+1}.png")}
+            edges = Array(2) { applet.loadImage("$baseFile/StreckenTile${it + 1}.png") }
+            ends = Array(2) { applet.loadImage("$baseFile/Ende${it + 1}.png") }
             center.resize(gridSize.toInt(), gridSize.toInt())
             edges.forEach { it.resize(gridSize.toInt(), gridSize.toInt()) }
             ends.forEach { it.resize(gridSize.toInt(), gridSize.toInt()) }
+
+            isInitialized = true
         }
     }
 
     fun render(applet: PApplet, gridSize : Float, timeStamp : Long) {
+        if (!isInitialized) setup(applet, gridSize)
         applet.imageMode(PConstants.CENTER)
 
         applet.pushMatrix()
-        applet.translate(position.x*gridSize, position.y*gridSize)
         applet.scale(
             min(1f,(timeStamp/100f))
         )

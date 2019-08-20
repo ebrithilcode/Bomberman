@@ -36,10 +36,10 @@ class Player(val name: String, val character: Pawn) {
                 if (character.facing == Direction.SOUTH) character.speed = 0f
             }
             PlayerAction.LEFT -> {
-                if (character.facing == Direction.EAST) character.speed = 0f
+                if (character.facing == Direction.WEST) character.speed = 0f
             }
             PlayerAction.RIGHT -> {
-                if (character.facing == Direction.WEST) character.speed = 0f
+                if (character.facing == Direction.EAST) character.speed = 0f
             }
             PlayerAction.SWITCH -> {
             }

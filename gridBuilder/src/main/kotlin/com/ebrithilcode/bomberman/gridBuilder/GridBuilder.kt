@@ -9,7 +9,7 @@ import com.ebrithilcode.bomberman.server.Grid
 import com.ebrithilcode.bomberman.server.Level
 
 fun main() {
-    PApplet.runSketch(arrayOf("empty"), GridBuilder(10, 10))
+    PApplet.runSketch(arrayOf("empty"), GridBuilder(15, 15))
 }
 
 class GridBuilder(width:Int, height:Int) : PApplet() {
@@ -27,7 +27,7 @@ class GridBuilder(width:Int, height:Int) : PApplet() {
     var selectionStart : PVector? = null
 
     override fun settings() {
-        size(640, 640)
+        fullScreen()
     }
 
     override fun setup() {
@@ -89,8 +89,9 @@ class GridBuilder(width:Int, height:Int) : PApplet() {
             } else if (key == 'a') {
                 floorType--
             } else if (key=='s') {
-                level.saveToFile("")
+                level.saveToFile("/home/kilian/IdeaProjects/EbrithilCode/BomberMan/server/src/main/resources/TestLevel.data")
             }
+            floorType += 3
             floorType %= 3
         }
     }

@@ -37,7 +37,7 @@ data class RenderMessage(val grid: Array<Byte>, val entities: Array<EntityData>,
 }
 
 @Serializable
-data class EntityData(val id: Long, val spriteId: Long, val posX: Float, val posY: Float, val facing: Direction, val velocity: Float)
+data class EntityData(val id: Long, val spriteId: Long, val posX: Float, val posY: Float, val facing: Direction, val velocity: Float, val data : String = "")
 
 
 @Serializable

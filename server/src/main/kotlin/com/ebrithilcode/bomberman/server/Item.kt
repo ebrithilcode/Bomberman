@@ -1,5 +1,6 @@
 package com.ebrithilcode.bomberman.server
 
+import com.ebrithilcode.bomberman.common.klaxon.EntityData
 import processing.core.PApplet
 import processing.core.PVector
 
@@ -25,6 +26,10 @@ class Item(grid: Grid, pos: PVector, val itemID: String, spriteID: Long, val onC
             isDead = true
         }
         return false
+    }
+
+    override fun encodeToData(): EntityData {
+        return EntityData(uniqueID, spriteID, position.x, position.y, facing, speed, itemID)
     }
 }
 
