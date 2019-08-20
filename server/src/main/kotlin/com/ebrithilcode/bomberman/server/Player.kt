@@ -6,7 +6,7 @@ import java.util.*
 
 class Player(val name: String, val character: Pawn) {
 
-    var currentActions : Set<PlayerAction> = EnumSet.noneOf(PlayerAction::class.java)
+    var currentActions : MutableSet<PlayerAction> = HashSet()
 
     fun onActionBegun(action: PlayerAction) {
         when (action) {
@@ -23,7 +23,7 @@ class Player(val name: String, val character: Pawn) {
                 character.facing = Direction.EAST; character.speed = character.maxSpeed
             }
             PlayerAction.SWITCH -> character.placeBomb()
-            PlayerAction.UNASSIGNED -> throw IllegalArgumentException() //TODO write message
+            PlayerAction.UNASSIGNED -> {}
         }
     }
 
@@ -42,16 +42,15 @@ class Player(val name: String, val character: Pawn) {
                 if (character.facing == Direction.WEST) character.speed = 0f
             }
             PlayerAction.SWITCH -> {
-
             }
             PlayerAction.UNASSIGNED -> throw IllegalArgumentException() //TODO write message
         }
     }
 
-    fun onPlayerActionUpdate(newActions: Set<PlayerAction>) {
-        val actionsBegun = newActions - currentActions
+    fun onPlayerActionUpdate(newActions: MutableSet<PlayerAction>) {
+        var actionsBegun = newActions - currentActions
         actionsBegun.forEach(this::onActionBegun)
-        val actionsStopped = currentActions - newActions
+        var actionsStopped = currentActions - newActions
         actionsStopped.forEach(this::onActionStopped)
         currentActions = newActions
     }

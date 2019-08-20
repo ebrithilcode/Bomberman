@@ -1,27 +1,24 @@
 package com.ebrithilcode.bomberman.client
 
-import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.ebrithilcode.bomberman.common.PlayerAction
 import com.ebrithilcode.bomberman.common.asyncReceive
 import com.ebrithilcode.bomberman.common.asyncSend
 import com.ebrithilcode.bomberman.common.getDataAsString
+import com.ebrithilcode.bomberman.common.klaxon.ClientRegisterMessage
 import com.ebrithilcode.bomberman.common.klaxon.PlayerActionMessage
 import com.ebrithilcode.bomberman.common.klaxon.RenderMessage
+import com.ebrithilcode.bomberman.common.klaxon.ServerConfirmationMessage
 import kotlinx.coroutines.*
-import kotlinx.coroutines.NonCancellable.isActive
 import processing.core.PApplet
-import processing.core.PVector
-import java.io.StringReader
 import java.net.*
 import java.util.*
-import java.util.concurrent.TimeoutException
 import kotlin.collections.HashMap
 
 object Client : PApplet() {
 
     private const val REMOTE_IP = "127.0.0.1"
-    private const val REMOTE_REGISTRATION_PORT = 8001
+    private const val REMOTE_PORT = 8001
     private var remoteConnectionPort = -1;
 
     const val GRID_SIZE = 50f
@@ -37,118 +34,105 @@ object Client : PApplet() {
     @Volatile
     private var idToAnimationMap: MutableMap<Long, Animation> = HashMap()
 
-    private var connectionCoroutineScope = CoroutineScope(Dispatchers.Default)
+    private lateinit var job : Job
 
-    private var socket = DatagramSocket()
 
     override fun settings() {
         size(800, 800)
     }
 
-    val testAnimation = BombAnimation(PVector(3f,3f), intArrayOf(1,2,3,4))
-
     override fun setup() {
+        println("Started setup...")
         frameRate(60f)
-
-        runBlocking {
-            registerAtServer().join()
-        }
-
-        launchServerReceive()
-        launchServerSend()
-        ellipseMode(CENTER)
-        rectMode(CENTER)
+        job = launchClient("Philipp")
+        Runtime.getRuntime().addShutdownHook(Thread {
+            job.cancel()
+        })
+        println("Finished setup!")
     }
 
     override fun draw() {
         background(255)
         val currentTime = System.currentTimeMillis()
-        println("Map: $idToEntityMap")
         for(rc : RenderingComponent in idToEntityMap.values) {
-            //pushMatrix()
-            //translate(rc.posX, rc.posY)
-            println("Updating $rc")
+            pushMatrix()
+            translate(rc.posX, rc.posY)
             rc.update(currentTime, this)
-            //popMatrix()
+            popMatrix()
         }
         for(rc : RenderingComponent in idToAnimationMap.values) {
-            //pushMatrix()
-            //translate(rc.posX, rc.posY)
+            pushMatrix()
+            translate(rc.posX, rc.posY)
             rc.update(currentTime, this)
-            //popMatrix()
+            popMatrix()
         }
     }
 
-    fun handleMessage(msg: RenderMessage) {
-        println("Handling $msg")
-        this.grid = Grid.fromData(msg.grid)
-        idToEntityMap = msg.entities.asSequence() //entities need to be recreated every time since data can change
-                .associateByTo(mutableMapOf(), { it.id }, { MockEntity(it) })
-        println("Id to entity map now is $idToEntityMap")
-        idToAnimationMap = msg.animations.asSequence() //animations can and should be reused
-                .associateByTo(mutableMapOf<Long, Animation>(), { it.id }, { idToAnimationMap[it.id] ?: Animation(it) })
 
-    }
-
-    private fun registerAtServer() : Job = connectionCoroutineScope.launch {
-        val bytes = """{
-            "name" : "philipp"
-        }""".toByteArray(Charsets.UTF_8)
-        val sendPacket = DatagramPacket(bytes, bytes.size, InetSocketAddress(REMOTE_IP, REMOTE_REGISTRATION_PORT))
+    private fun launchClient(name : String) : Job = CoroutineScope(Dispatchers.Default).launch {
+        val bytes = Klaxon().toJsonString(ClientRegisterMessage(name)).toByteArray(Charsets.UTF_8)
+        val sendPacket = DatagramPacket(bytes, bytes.size, InetSocketAddress(REMOTE_IP, REMOTE_PORT))
         DatagramSocket().use {
-            it.asyncSend(sendPacket)
-            println("Data send")
-
             val recvPacket = DatagramPacket(ByteArray(4096), 4096)
-            val isTimedOut = withTimeoutOrNull(1000) {
-
-                    GlobalScope.launch {
-                        try {
-                            it.asyncReceive(recvPacket)
-                        } catch (ignore : SocketException) {
-                        }
-                    }.join()
-
+            loop@ while (true) {
+                println("Sending registration message to server...")
+                it.asyncSend(sendPacket)
+                println("Sent registration message!")
+                try {
+                    it.soTimeout = 3000
+                    it.asyncReceive(recvPacket)
+                } catch (ex: SocketTimeoutException) {
+                    println("Server did not respond in time, retrying...")
+                    continue@loop
+                }
+                val confirmationMsg = Klaxon().parse<ServerConfirmationMessage>(recvPacket.getDataAsString())
+                        ?: throw IllegalStateException("Error parsing ServerConfirmationMessage:\n ${recvPacket.getDataAsString()}")
+                if (!confirmationMsg.success) throw IllegalStateException("Server rejected registration!")
+                break@loop
             }
-
-            println("Is it timed out? ${isTimedOut==null}")
-            if (isTimedOut==null) registerAtServer().join()
-            else {
-                val json = Klaxon().parseJsonObject(StringReader(recvPacket.getDataAsString()))
-                println("Data used")
-                if (json.boolean("success") == true) println("Successfully registered at server")
-                remoteConnectionPort =
-                    json.int("port") ?: throw java.lang.IllegalStateException() //TODO: write message
+            val recvJob = launch {
+                startMessageReceiveLoop(it)
             }
-
+            val sendJob = launch {
+                startMessageSendLoop(it)
+            }
+            recvJob.join()
+            sendJob.join()
         }
     }
 
-    private fun launchServerReceive() : Job = connectionCoroutineScope.launch {
+    private suspend fun startMessageReceiveLoop(socket : DatagramSocket) = coroutineScope {
+        println("Now listening for incoming RenderMessages...")
         val recvPacket = DatagramPacket(ByteArray(8192), 8192)
-        socket.use {
-            while (isActive) {
-                recvPacket.length = recvPacket.data.size
-                it.asyncReceive(recvPacket)
-                val str = recvPacket.getDataAsString()
-                println("Received $str")
-                val msg = Klaxon().parse<RenderMessage>(recvPacket.getDataAsString())
-                        ?: throw IllegalStateException() //TODO write message
-                handleMessage(msg)
+        while (isActive) {
+            recvPacket.length = recvPacket.data.size
+            try {
+                socket.asyncReceive(recvPacket)
             }
+            catch (ex : SocketTimeoutException) {
+                println("Server timed out...")
+                //TODO: if multiple timeouts happen then stop exceptionally
+            }
+            val msg = Klaxon().parse<RenderMessage>(recvPacket.getDataAsString())
+                    ?: throw IllegalStateException("Error parsing ServerConfirmationMessage:\n ${recvPacket.getDataAsString()}")
+            grid = Grid.fromData(msg.grid)
+            idToEntityMap = msg.entities.asSequence() //entities need to be recreated every time since data can change
+                    .associateByTo(mutableMapOf(), { it.id }, { MockEntity(it) })
+            idToAnimationMap = msg.animations.asSequence() //animations can and should be reused
+                    .associateByTo(mutableMapOf<Long, Animation>(), { it.id }, { idToAnimationMap[it.id] ?: Animation(it) })
+
         }
         println("Stopped listening for incoming RenderMessages!")
     }
 
-    private fun launchServerSend() : Job = connectionCoroutineScope.launch {
-        socket.use {
-            while(isActive) {
-                val bytes = Klaxon().toJsonString(PlayerActionMessage(currentPlayerActions.minus(PlayerAction.UNASSIGNED))).toByteArray(Charsets.UTF_8)
-                val packet = DatagramPacket(bytes, bytes.size, InetSocketAddress(REMOTE_IP, remoteConnectionPort))
-                it.asyncSend(packet)
-            }
+    private suspend fun startMessageSendLoop(socket : DatagramSocket) = coroutineScope {
+        println("Now sending PlayerActionMessages...")
+        while(isActive) {
+            val bytes = Klaxon().toJsonString(PlayerActionMessage(currentPlayerActions.toHashSet())).toByteArray(Charsets.UTF_8)
+            val packet = DatagramPacket(bytes, bytes.size, InetSocketAddress(REMOTE_IP, REMOTE_PORT))
+            socket.asyncSend(packet)
         }
-        println("Stopped sending RenderMessages!")
+        println("Stopped sending PlayerActionMessages!")
     }
 
 

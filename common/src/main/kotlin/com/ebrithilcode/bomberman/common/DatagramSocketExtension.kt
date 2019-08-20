@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 
-suspend fun DatagramSocket.asyncReceive(packet : DatagramPacket) = withContext(Dispatchers.IO) {
+suspend fun DatagramSocket.asyncReceive(packet: DatagramPacket) = withContext(Dispatchers.IO) {
     receive(packet)
 }
 
