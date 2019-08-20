@@ -10,9 +10,13 @@ import com.ebrithilcode.bomberman.common.klaxon.PlayerActionMessage
 import com.ebrithilcode.bomberman.common.klaxon.RenderMessage
 import com.ebrithilcode.bomberman.common.klaxon.ServerConfirmationMessage
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
+import org.jetbrains.annotations.TestOnly
 import processing.core.PApplet
 import java.net.*
 import java.util.*
+import javax.annotation.processing.SupportedAnnotationTypes
 import kotlin.collections.HashMap
 
 object Client : PApplet() {
@@ -20,6 +24,8 @@ object Client : PApplet() {
     private const val REMOTE_IP = "127.0.0.1"
     private const val REMOTE_PORT = 8001
     private var remoteConnectionPort = -1;
+
+    private val json = Json(JsonConfiguration.Stable)
 
     const val GRID_SIZE = 50f
 
@@ -54,18 +60,22 @@ object Client : PApplet() {
     override fun draw() {
         background(255)
         val currentTime = System.currentTimeMillis()
+
+        pushMatrix()
+        //translate(width/2f - grid.gridSize * grid.width/2, height/2f - grid.gridSize*grid.width/2)
         for(rc : RenderingComponent in idToEntityMap.values) {
             pushMatrix()
-            translate(rc.posX, rc.posY)
+            translate(rc.posX * grid.gridSize, rc.posY * grid.gridSize)
             rc.update(currentTime, this)
             popMatrix()
         }
         for(rc : RenderingComponent in idToAnimationMap.values) {
             pushMatrix()
-            translate(rc.posX, rc.posY)
+            translate(rc.posX *grid.gridSize, rc.posY * grid.gridSize)
             rc.update(currentTime, this)
             popMatrix()
         }
+        popMatrix()
     }
 
 
@@ -113,8 +123,7 @@ object Client : PApplet() {
                 println("Server timed out...")
                 //TODO: if multiple timeouts happen then stop exceptionally
             }
-            val msg = Klaxon().parse<RenderMessage>(recvPacket.getDataAsString())
-                    ?: throw IllegalStateException("Error parsing ServerConfirmationMessage:\n ${recvPacket.getDataAsString()}")
+            val msg = json.parse(RenderMessage.serializer(), recvPacket.getDataAsString())
             grid = Grid.fromData(msg.grid)
             idToEntityMap = msg.entities.asSequence() //entities need to be recreated every time since data can change
                     .associateByTo(mutableMapOf(), { it.id }, { MockEntity(it) })
@@ -128,7 +137,7 @@ object Client : PApplet() {
     private suspend fun startMessageSendLoop(socket : DatagramSocket) = coroutineScope {
         println("Now sending PlayerActionMessages...")
         while(isActive) {
-            val bytes = Klaxon().toJsonString(PlayerActionMessage(currentPlayerActions.toHashSet())).toByteArray(Charsets.UTF_8)
+            val bytes = json.stringify(PlayerActionMessage.serializer(), PlayerActionMessage(currentPlayerActions.toHashSet())).toByteArray(Charsets.UTF_8)
             val packet = DatagramPacket(bytes, bytes.size, InetSocketAddress(REMOTE_IP, REMOTE_PORT))
             socket.asyncSend(packet)
         }

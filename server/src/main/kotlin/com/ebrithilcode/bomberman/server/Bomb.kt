@@ -1,9 +1,10 @@
 package com.ebrithilcode.bomberman.server
 
-import com.beust.klaxon.JsonArray
-import com.beust.klaxon.JsonObject
 import com.ebrithilcode.bomberman.common.Direction
 import com.ebrithilcode.bomberman.common.klaxon.AnimationData
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PVector
@@ -75,10 +76,9 @@ class Bomb(grid: Grid, val lifeTime: Int, val placer: Pawn) : Entity(grid, 4) {
             if (rays[index] == 0) rays[index] = placer.explosionRange
         }
         isDead = true
+
         val pos = roundPosition()
-        val animationData = AnimationData(0,0,pos.x, pos.y, System.currentTimeMillis(), JsonObject(
-            mutableMapOf("dirMags" to JsonArray(rays.asList()))
-        ))
+        val animationData = AnimationData(0,0,pos.x, pos.y, System.currentTimeMillis(), rays.toTypedArray())
         grid.animationList.add(ServerAnimation(animationData, 500L))
 
         return rays

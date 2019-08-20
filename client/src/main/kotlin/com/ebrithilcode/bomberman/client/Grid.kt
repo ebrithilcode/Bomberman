@@ -8,8 +8,8 @@ class Grid(val width : Int, val height: Int) {
     val gridSize = 50f
 
     companion object {
-        fun fromData(arr : ByteArray): Grid {
-            val buffer = ByteBuffer.wrap(arr)
+        fun fromData(arr : Array<Byte>): Grid {
+            val buffer = ByteBuffer.wrap(arr.toByteArray())
             val grid = Grid(buffer.int, buffer.int)
             for (subArray in grid.fields) {
                 for (index in subArray.indices) subArray[index] = buffer.get()

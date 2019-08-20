@@ -6,10 +6,15 @@ import com.ebrithilcode.bomberman.common.asyncSend
 import com.ebrithilcode.bomberman.common.getDataAsString
 import com.ebrithilcode.bomberman.common.klaxon.ClientRegisterMessage
 import com.ebrithilcode.bomberman.common.klaxon.PlayerActionMessage
+import com.ebrithilcode.bomberman.common.klaxon.RenderMessage
 import com.ebrithilcode.bomberman.common.klaxon.ServerConfirmationMessage
 import kotlinx.coroutines.*
+import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import processing.core.PApplet
 import processing.core.PImage
+import processing.core.PVector
 import java.net.*
 import java.util.concurrent.atomic.AtomicLong
 
@@ -18,6 +23,9 @@ object Server : PApplet() {
 
     private const val PORT = 8001
     private const val AVAILABLE_PLAYER_SPRITES = 4
+
+    private val json = Json(JsonConfiguration.Stable)
+
 
 
     private val clientList: MutableList<Socket> = mutableListOf()
@@ -74,7 +82,9 @@ object Server : PApplet() {
 
     fun getSprite(id: Long): PImage = idToSpriteMap[id] ?: throw IllegalArgumentException() //TODO: write message
 
+
     private fun launchServer(numPlayers: Int): Job = CoroutineScope(Dispatchers.IO).launch {
+
         var playersLeft = numPlayers
         val recvPacket = DatagramPacket(ByteArray(4096), 4096) //receive packet can be reused
         val socket = DatagramSocket(PORT)
@@ -87,8 +97,11 @@ object Server : PApplet() {
                     println("Client at ${recvPacket.socketAddress} already registered with name ${addrToPlayerMap[recvPacket.socketAddress]!!.name}!")
                     continue
                 }
-                val msg = Klaxon().parse<ClientRegisterMessage>(recvPacket.getDataAsString())
-                        ?: throw IllegalStateException("Error while parsing ClientRegisterMessage:\n ${recvPacket.getDataAsString()}")
+                //val msg = Klaxon().parse<ClientRegisterMessage>(recvPacket.getDataAsString())
+                //        ?: throw IllegalStateException("Error while parsing ClientRegisterMessage:\n ${recvPacket.getDataAsString()}")
+
+
+                val msg = json.parse(ClientRegisterMessage.serializer(), recvPacket.getDataAsString())
                 val player = Player(msg.name, Pawn(grid, 0))
                 println("Player $player at ${recvPacket.socketAddress} connected!")
                 addrToPlayerMap[recvPacket.socketAddress] = player
@@ -100,6 +113,12 @@ object Server : PApplet() {
                 println("Sent confirmation message!")
                 playersLeft--
             }
+
+            for ( (index, player) in addrToPlayerMap.values.withIndex()) {
+                player.character.position = level.positionMap.get("pos$index") ?: PVector(0f,0f)
+                grid.addEntity(player.character)
+            }
+
             val recvJob = launch {
                 startMessageReceiveLoop(socket)
             }
@@ -119,8 +138,7 @@ object Server : PApplet() {
             socket.asyncReceive(recvPacket)
             val player = addrToPlayerMap[recvPacket.socketAddress]
                     ?: throw IllegalStateException("Received packet from ${recvPacket.socketAddress} who is not a registered Player")
-            val msg = Klaxon().parse<PlayerActionMessage>(recvPacket.getDataAsString())
-                    ?: throw IllegalStateException("Error while parsing PlayerActionMessage:\n ${recvPacket.getDataAsString()}")
+            val msg = json.parse(PlayerActionMessage.serializer(), recvPacket.getDataAsString())
             player.onPlayerActionUpdate(msg.actions)
         }
         println("Stopped listening for incoming PlayerActionMessages!")
@@ -129,7 +147,7 @@ object Server : PApplet() {
     private suspend fun startMessageSendLoop(socket : DatagramSocket) = coroutineScope {
         println("Now sending RenderMessages to all registered Players...")
         while(isActive) {
-            val bytes = Klaxon().toJsonString(grid.encodeToRenderMessage()).toByteArray(Charsets.UTF_8)
+            val bytes = json.stringify(RenderMessage.serializer(), grid.encodeToRenderMessage()).toByteArray(Charsets.UTF_8)
             for(addr in addrToPlayerMap.keys) {
                 val packet = DatagramPacket(bytes, bytes.size, addr)
                 socket.asyncSend(packet)

@@ -141,7 +141,7 @@ class Grid(val width: Int, val height: Int, val gridSize: Float) {
             }
             animationList[it].animationData
         }
-        return RenderMessage(encodeToBytes(), Array(entityList.size) { entityList[it].encodeToData() }, arr)
+        return RenderMessage(encodeToBytes().toTypedArray(), Array(entityList.size) { entityList[it].encodeToData() }, arr)
     }
 
 }
